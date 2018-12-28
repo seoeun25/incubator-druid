@@ -232,12 +232,20 @@ public class TaskQueue
 
       try {
         // Task futures available from the taskRunner
+        if (taskRunner.getKnownTasks().size() > 0) {
+          log.info("----az taskRunner.KnownTasks.size = %s", taskRunner.getKnownTasks().size());
+          taskRunner.getKnownTasks().forEach(item -> log.info(item.getTaskId()));
+        }
         final Map<String, ListenableFuture<TaskStatus>> runnerTaskFutures = Maps.newHashMap();
         for (final TaskRunnerWorkItem workItem : taskRunner.getKnownTasks()) {
           runnerTaskFutures.put(workItem.getTaskId(), workItem.getResult());
         }
         // Attain futures for all active tasks (assuming they are ready to run).
         // Copy tasks list, as notifyStatus may modify it.
+        if (tasks.size() > 0) {
+          log.info("----az tasks.size = %s", tasks.size());
+          tasks.forEach(task -> log.info("  task = %s", task.getId()));
+        }
         for (final Task task : ImmutableList.copyOf(tasks)) {
           if (!taskFutures.containsKey(task.getId())) {
             final ListenableFuture<TaskStatus> runnerTaskFuture;
@@ -262,6 +270,8 @@ public class TaskQueue
               }
             }
             taskFutures.put(task.getId(), attachCallbacks(task, runnerTaskFuture));
+          } else {
+            log.info("----az task has taskFuture. taskId=%s", task.getId());
           }
         }
         // Kill tasks that shouldn't be running

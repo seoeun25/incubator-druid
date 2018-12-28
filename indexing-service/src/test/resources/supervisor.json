@@ -1,0 +1,258 @@
+{
+  "type": "kafka",
+  "dataSchema": {
+    "dataSource": "events",
+    "parser": {
+      "type": "string",
+      "parseSpec": {
+        "format": "json",
+        "timestampSpec": {
+          "column": "event_time",
+          "format": "auto"
+        },
+        "dimensionsSpec": {
+          "dimensions": [
+            "d1",
+            "d2"
+          ],
+          "dimensionExclusions": []
+        }
+      }
+    },
+    "metricsSpec": [
+      {
+        "type": "count",
+        "name": "count"
+      },
+      {
+        "type": "longSum",
+        "name": "m1",
+        "fieldName": "m1",
+        "expression": null
+      },
+      {
+        "type": "longSum",
+        "name": "m2",
+        "fieldName": "m2",
+        "expression": null
+      }
+    ],
+    "granularitySpec": {
+      "type": "uniform",
+      "segmentGranularity": "TEN_MINUTE",
+      "queryGranularity": {
+        "type": "none"
+      },
+      "rollup": true,
+      "intervals": null
+    },
+    "transformSpec": {
+      "filter": null,
+      "transforms": []
+    }
+  },
+  "tuningConfig": {
+    "type": "kafka",
+    "maxRowsInMemory": 1000000,
+    "maxBytesInMemory": 0,
+    "maxRowsPerSegment": 5000000,
+    "maxTotalRows": null,
+    "intermediatePersistPeriod": "PT10M",
+    "basePersistDirectory": "/usr/local/apache-druid-0.13.0-incubating-SNAPSHOT/var/tmp/1542851524354-0",
+    "maxPendingPersists": 0,
+    "indexSpec": {
+      "bitmap": {
+        "type": "concise"
+      },
+      "dimensionCompression": "lz4",
+      "metricCompression": "lz4",
+      "longEncoding": "longs"
+    },
+    "buildV9Directly": true,
+    "reportParseExceptions": false,
+    "handoffConditionTimeout": 0,
+    "resetOffsetAutomatically": false,
+    "segmentWriteOutMediumFactory": null,
+    "workerThreads": null,
+    "chatThreads": null,
+    "chatRetries": 8,
+    "httpTimeout": "PT10S",
+    "shutdownTimeout": "PT80S",
+    "offsetFetchPeriod": "PT30S",
+    "intermediateHandoffPeriod": "P2147483647D",
+    "logParseExceptions": false,
+    "maxParseExceptions": 2147483647,
+    "maxSavedParseExceptions": 0
+  },
+  "ioConfig": {
+    "topic": "events",
+    "replicas": 1,
+    "taskCount": 1,
+    "taskDuration": "PT3600S",
+    "consumerProperties": {
+      "bootstrap.servers": "localhost:9092"
+    },
+    "startDelay": "PT5S",
+    "period": "PT30S",
+    "useEarliestOffset": false,
+    "completionTimeout": "PT1800S",
+    "lateMessageRejectionPeriod": null,
+    "earlyMessageRejectionPeriod": null,
+    "skipOffsetGaps": false
+  },
+  "context": null,
+  "suspended": false
+}
+{
+  "id": "events",
+  "generationTime": "2018-12-21T02:00:23.053Z",
+  "payload": {
+    "dataSource": "events",
+    "topic": "events",
+    "partitions": 2,
+    "replicas": 1,
+    "durationSeconds": 600,
+    "activeTasks": [
+      {
+        "id": "index_kafka_events_77e605d6d61aa9d_fbdhbdph",
+        "startingOffsets": {
+          "0": 20024,
+          "1": 20026
+        },
+        "startTime": "2018-12-21T01:54:36.812Z",
+        "remainingSeconds": 253,
+        "type": "ACTIVE",
+        "currentOffsets": {
+          "0": 20199,
+          "1": 20201
+        },
+        "lag": {
+          "0": 0,
+          "1": 0
+        }
+      }
+    ],
+    "publishingTasks": [],
+    "latestOffsets": {
+      "0": 20199,
+      "1": 20201
+    },
+    "minimumLag": {
+      "0": 0,
+      "1": 0
+    },
+    "aggregateLag": 0,
+    "offsetsLastUpdated": "2018-12-21T02:00:22.646Z",
+    "suspended": false
+  }
+}
+[
+  {
+    "spec": {
+      "type": "kafka",
+      "dataSchema": {
+        "dataSource": "events",
+        "parser": {
+          "type": "string",
+          "parseSpec": {
+            "format": "json",
+            "timestampSpec": {
+              "column": "event_time",
+              "format": "auto"
+            },
+            "dimensionsSpec": {
+              "dimensions": [
+                "d1",
+                "d2"
+              ],
+              "dimensionExclusions": []
+            }
+          }
+        },
+        "metricsSpec": [
+          {
+            "type": "count",
+            "name": "count"
+          },
+          {
+            "type": "longSum",
+            "name": "m1",
+            "fieldName": "m1",
+            "expression": null
+          },
+          {
+            "type": "longSum",
+            "name": "m2",
+            "fieldName": "m2",
+            "expression": null
+          }
+        ],
+        "granularitySpec": {
+          "type": "uniform",
+          "segmentGranularity": "HOUR",
+          "queryGranularity": {
+            "type": "none"
+          },
+          "rollup": false,
+          "intervals": null
+        },
+        "transformSpec": {
+          "filter": null,
+          "transforms": []
+        }
+      },
+      "tuningConfig": {
+        "type": "kafka",
+        "maxRowsInMemory": 1000000,
+        "maxBytesInMemory": 0,
+        "maxRowsPerSegment": 5000000,
+        "maxTotalRows": null,
+        "intermediatePersistPeriod": "PT10M",
+        "basePersistDirectory": "/usr/local/apache-druid-0.13.0-incubating-SNAPSHOT/var/tmp/1545131136591-0",
+        "maxPendingPersists": 0,
+        "indexSpec": {
+          "bitmap": {
+            "type": "concise"
+          },
+          "dimensionCompression": "lz4",
+          "metricCompression": "lz4",
+          "longEncoding": "longs"
+        },
+        "buildV9Directly": true,
+        "reportParseExceptions": false,
+        "handoffConditionTimeout": 0,
+        "resetOffsetAutomatically": false,
+        "segmentWriteOutMediumFactory": null,
+        "workerThreads": null,
+        "chatThreads": null,
+        "chatRetries": 8,
+        "httpTimeout": "PT10S",
+        "shutdownTimeout": "PT80S",
+        "offsetFetchPeriod": "PT30S",
+        "intermediateHandoffPeriod": "P2147483647D",
+        "logParseExceptions": false,
+        "maxParseExceptions": 2147483647,
+        "maxSavedParseExceptions": 0
+      },
+      "ioConfig": {
+        "topic": "events",
+        "replicas": 1,
+        "taskCount": 1,
+        "taskDuration": "PT600S",
+        "consumerProperties": {
+          "bootstrap.servers": "localhost:9092"
+        },
+        "startDelay": "PT5S",
+        "period": "PT30S",
+        "useEarliestOffset": false,
+        "completionTimeout": "PT1200S",
+        "lateMessageRejectionPeriod": null,
+        "earlyMessageRejectionPeriod": null,
+        "skipOffsetGaps": false
+      },
+      "context": null,
+      "suspended": false
+    },
+    "version": "2018-12-18T11:05:36.595Z"
+  }
+]

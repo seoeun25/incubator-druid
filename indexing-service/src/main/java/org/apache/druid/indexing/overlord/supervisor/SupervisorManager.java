@@ -130,6 +130,7 @@ public class SupervisorManager
 
     synchronized (lock) {
       Map<String, SupervisorSpec> supervisors = metadataSupervisorManager.getLatest();
+      log.info("----az stored supervisors size = %s", supervisors.size());
       for (String id : supervisors.keySet()) {
         SupervisorSpec spec = supervisors.get(id);
         if (!(spec instanceof NoopSupervisorSpec)) {

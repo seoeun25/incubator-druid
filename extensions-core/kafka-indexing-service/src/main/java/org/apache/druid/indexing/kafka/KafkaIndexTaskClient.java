@@ -175,9 +175,11 @@ public class KafkaIndexTaskClient extends IndexTaskClient
              : deserialize(response.getContent(), DateTime.class);
     }
     catch (NoTaskLocationException e) {
+      log.info("----az NoTaskLocationException. return null");
       return null;
     }
     catch (IOException e) {
+      log.info("----az IOException. throw exception");
       throw new RuntimeException(e);
     }
   }

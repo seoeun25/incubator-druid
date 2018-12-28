@@ -114,6 +114,8 @@ public class WorkerTaskMonitor extends WorkerTaskManager
   private void cleanupStaleAnnouncements() throws Exception
   {
     synchronized (lock) {
+      log.info("----az workerCuratorCoordinator = %s", workerCuratorCoordinator.getStatusPathForWorker());
+      workerCuratorCoordinator.getStatusPathForWorker();
       // cleanup any old running task announcements which are invalid after restart
       for (TaskAnnouncement announcement : workerCuratorCoordinator.getAnnouncements()) {
         if (announcement.getTaskStatus().isRunnable()) {
@@ -130,6 +132,8 @@ public class WorkerTaskMonitor extends WorkerTaskManager
                      announcement.getTaskStatus().getId(),
                      completionStatus.getStatusCode()
                      );
+            log.info("----az workerCuratorCoordinator.updateTask, id=%s, location=%s, result=%s",
+                     announcement.getTaskStatus().getId(), "unknown", completionStatus);
             workerCuratorCoordinator.updateTaskStatusAnnouncement(
                 TaskAnnouncement.create(
                     announcement.getTaskStatus().getId(),
@@ -160,7 +164,7 @@ public class WorkerTaskMonitor extends WorkerTaskManager
                   cf.getData().forPath(pathChildrenCacheEvent.getData().getPath()),
                   Task.class
               );
-
+              log.info("----az childEvent. path=%s", pathChildrenCacheEvent.getData().getPath());
               assignTask(task);
             }
           }

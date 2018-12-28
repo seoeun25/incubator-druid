@@ -227,6 +227,12 @@ public class RemoteTaskRunner implements WorkerTaskRunner, TaskLogStreamer
       final Object waitingForMonitor = new Object();
 
       // Add listener for creation/deletion of workers
+      log.info("----az workerPathCache.current dataSize=%s",
+               workerPathCache.getCurrentData().size()
+      );
+      workerPathCache.getCurrentData().forEach(childData -> {
+        log.info("----az childData = %s", childData.getPath());
+      });
       workerPathCache.getListenable().addListener(
           new PathChildrenCacheListener()
           {
@@ -243,6 +249,7 @@ public class RemoteTaskRunner implements WorkerTaskRunner, TaskLogStreamer
                   synchronized (waitingForMonitor) {
                     waitingFor.increment();
                   }
+                  log.info("----az addWorker = %s, path=%s", worker, event.getData().getPath());
                   Futures.addCallback(
                       addWorker(worker),
                       new FutureCallback<ZkWorker>()
@@ -949,6 +956,10 @@ public class RemoteTaskRunner implements WorkerTaskRunner, TaskLogStreamer
             {
               final String taskId;
               final RemoteTaskRunnerWorkItem taskRunnerWorkItem;
+              log.info("----az workerChildEvent. type=%s, path = %s", event.getType(),
+                       event.getData() == null ? "event.getData is null" :
+                       event.getData().getPath()
+              );
               synchronized (statusLock) {
                 try {
                   switch (event.getType()) {
@@ -1003,6 +1014,7 @@ public class RemoteTaskRunner implements WorkerTaskRunner, TaskLogStreamer
                       }
 
                       if (announcement.getTaskStatus().isComplete()) {
+                        log.info("----az announcement. complete");
                         taskComplete(taskRunnerWorkItem, zkWorker, announcement.getTaskStatus());
                         runPendingTasks();
                       }

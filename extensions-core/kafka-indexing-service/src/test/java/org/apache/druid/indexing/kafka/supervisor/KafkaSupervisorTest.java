@@ -2570,6 +2570,16 @@ public class KafkaSupervisorTest extends EasyMockSupport
     Assert.assertEquals(ImmutableSet.of("0", "1"), stats.keySet());
     Assert.assertEquals(ImmutableMap.of("task1", ImmutableMap.of("prop1", "val1")), stats.get("0"));
     Assert.assertEquals(ImmutableMap.of("task2", ImmutableMap.of("prop2", "val2")), stats.get("1"));
+
+    String sql = StringUtils.format(
+        "SELECT r.spec_id, r.payload "
+        + "FROM %1$s r "
+        + "INNER JOIN(SELECT spec_id, max(id) as id FROM %1$s GROUP BY spec_id) latest "
+        + "ON r.id = latest.id",
+        "druid_supervisor"
+    );
+    System.out.println("sql =  \n" + sql);
+
   }
 
 

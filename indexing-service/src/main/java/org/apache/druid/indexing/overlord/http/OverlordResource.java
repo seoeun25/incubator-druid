@@ -169,6 +169,8 @@ public class OverlordResource
       throw new ForbiddenException(authResult.getMessage());
     }
 
+    log.info("----az OverlordResource");
+
     return asLeaderWith(
         taskMaster.getTaskQueue(),
         new Function<TaskQueue, Response>()

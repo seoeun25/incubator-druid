@@ -451,6 +451,7 @@ public class IncrementalPublishingKafkaIndexTaskRunner implements KafkaIndexTask
           ConsumerRecords<byte[], byte[]> records = ConsumerRecords.empty();
           try {
             records = consumer.poll(KafkaIndexTask.POLL_TIMEOUT_MILLIS);
+            log.info("----az kafka.consumer poll after");
           }
           catch (OffsetOutOfRangeException e) {
             log.warn("OffsetOutOfRangeException with message [%s]", e.getMessage());
@@ -507,7 +508,7 @@ public class IncrementalPublishingKafkaIndexTaskRunner implements KafkaIndexTask
                       sequences
                   );
                 }
-
+                log.info("----az one record: rows.size = %s", rows.size());
                 for (InputRow row : rows) {
                   if (row != null && task.withinMinMaxRecordTime(row)) {
                     final AppenderatorDriverAddResult addResult = driver.add(
@@ -613,6 +614,7 @@ public class IncrementalPublishingKafkaIndexTaskRunner implements KafkaIndexTask
           }
         }
         ingestionState = IngestionState.COMPLETED;
+        log.info("----az IngestionState.COMPLETED");
       }
       catch (Exception e) {
         // (1) catch all exceptions while reading from kafka
@@ -953,6 +955,7 @@ public class IncrementalPublishingKafkaIndexTaskRunner implements KafkaIndexTask
   private void maybePersistAndPublishSequences(Supplier<Committer> committerSupplier)
       throws InterruptedException
   {
+    log.info("----az maybePersistAndPublishSequences");
     for (SequenceMetadata sequenceMetadata : sequences) {
       sequenceMetadata.updateAssignments(nextOffsets);
       if (!sequenceMetadata.isOpen() && !publishingSequences.contains(sequenceMetadata.getSequenceName())) {
@@ -983,7 +986,7 @@ public class IncrementalPublishingKafkaIndexTaskRunner implements KafkaIndexTask
       if (entry.getValue() < endOffset) {
         assignment.add(entry.getKey());
       } else if (entry.getValue() == endOffset) {
-        log.info("Finished reading partition[%d].", entry.getKey());
+        log.info("Finished reading partition[%d]. endOffset[%d]", entry.getKey(), endOffset);
       } else {
         throw new ISE(
             "WTF?! Cannot start from offset[%,d] > endOffset[%,d]",

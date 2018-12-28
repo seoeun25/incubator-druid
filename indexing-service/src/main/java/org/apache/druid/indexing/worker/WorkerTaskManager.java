@@ -179,6 +179,7 @@ public abstract class WorkerTaskManager
     exec.execute(
         () -> {
           try {
+            log.info("----az submitNoticeToExec");
             notice.handle();
           }
           catch (Exception e) {
@@ -217,6 +218,7 @@ public abstract class WorkerTaskManager
           @Override
           public void locationChanged(final String taskId, final TaskLocation newLocation)
           {
+            log.info("----az locationChanged, id=%s, newLocation=%s", taskId, newLocation);
             submitNoticeToExec(new LocationNotice(taskId, newLocation));
           }
 
@@ -284,6 +286,7 @@ public abstract class WorkerTaskManager
       );
     }
 
+    log.info("----az new RunNotice.");
     submitNoticeToExec(new RunNotice(task));
   }
 

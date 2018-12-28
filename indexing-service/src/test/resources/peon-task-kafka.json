@@ -1,0 +1,118 @@
+{
+  "type": "index_kafka",
+  "id": "index_kafka_events_a997c4483fed3d7_ekbdpffn",
+  "resource": {
+    "availabilityGroup": "index_kafka_events_a997c4483fed3d7",
+    "requiredCapacity": 1
+  },
+  "dataSchema": {
+    "dataSource": "events",
+    "parser": {
+      "type": "string",
+      "parseSpec": {
+        "format": "json",
+        "timestampSpec": {
+          "column": "event_time",
+          "format": "auto"
+        },
+        "dimensionsSpec": {
+          "dimensions": [
+            "d1",
+            "d2"
+          ],
+          "dimensionExclusions": []
+        }
+      }
+    },
+    "metricsSpec": [
+      {
+        "type": "count",
+        "name": "count"
+      },
+      {
+        "type": "longSum",
+        "name": "m1",
+        "fieldName": "m1",
+        "expression": null
+      },
+      {
+        "type": "longSum",
+        "name": "m2",
+        "fieldName": "m2",
+        "expression": null
+      }
+    ],
+    "granularitySpec": {
+      "type": "uniform",
+      "segmentGranularity": "HOUR",
+      "queryGranularity": {
+        "type": "none"
+      },
+      "rollup": false,
+      "intervals": null
+    },
+    "transformSpec": {
+      "filter": null,
+      "transforms": []
+    }
+  },
+  "tuningConfig": {
+    "type": "KafkaTuningConfig",
+    "maxRowsInMemory": 1000000,
+    "maxBytesInMemory": 0,
+    "maxRowsPerSegment": 5000000,
+    "maxTotalRows": null,
+    "intermediatePersistPeriod": "PT10M",
+    "basePersistDirectory": "/usr/local/apache-druid-0.13.0-incubating-SNAPSHOT/var/tmp/1545131136591-0",
+    "maxPendingPersists": 0,
+    "indexSpec": {
+      "bitmap": {
+        "type": "concise"
+      },
+      "dimensionCompression": "lz4",
+      "metricCompression": "lz4",
+      "longEncoding": "longs"
+    },
+    "buildV9Directly": true,
+    "reportParseExceptions": false,
+    "handoffConditionTimeout": 0,
+    "resetOffsetAutomatically": false,
+    "segmentWriteOutMediumFactory": null,
+    "intermediateHandoffPeriod": "P2147483647D",
+    "logParseExceptions": false,
+    "maxParseExceptions": 2147483647,
+    "maxSavedParseExceptions": 0
+  },
+  "ioConfig": {
+    "type": "kafka",
+    "taskGroupId": 0,
+    "baseSequenceName": "index_kafka_events_a997c4483fed3d7",
+    "startPartitions": {
+      "topic": "events",
+      "partitionOffsetMap": {
+        "0": 37697,
+        "1": 37698
+      }
+    },
+    "endPartitions": {
+      "topic": "events",
+      "partitionOffsetMap": {
+        "0": 9223372036854775807,
+        "1": 9223372036854775807
+      }
+    },
+    "consumerProperties": {
+      "bootstrap.servers": "localhost:9092"
+    },
+    "useTransaction": true,
+    "minimumMessageTime": null,
+    "maximumMessageTime": null,
+    "skipOffsetGaps": false
+  },
+  "context": {
+    "checkpoints": "{\"0\":{\"0\":37697,\"1\":37698}}",
+    "IS_INCREMENTAL_HANDOFF_SUPPORTED": true
+  },
+  "groupId": "index_kafka_events",
+  "dataSource": "events"
+}

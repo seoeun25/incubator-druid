@@ -203,6 +203,7 @@ public class TaskManagementResource
   public Response assignTask(Task task)
   {
     try {
+      log.info("----az assignTask");
       workerTaskMonitor.assignTask(task);
       return Response.ok().build();
     }
