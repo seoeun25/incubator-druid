@@ -86,6 +86,7 @@ public class IntervalLoadRule extends LoadRule
   @Override
   public boolean appliesTo(Interval theInterval, DateTime referenceTimestamp)
   {
+    log.info("----az appliesTo = %s, segmentInterval = %s", interval, theInterval);
     return Rules.eligibleForLoad(interval, theInterval);
   }
 

@@ -364,6 +364,7 @@ public class CuratorInventoryManager<ContainerClass, InventoryClass>
         this.inventoryPath = inventoryPath;
 
         log.info("Created new InventoryCacheListener for %s", inventoryPath);
+        log.info("----az new InventoryCacheListener. containerKey = %s", containerKey);
       }
 
       @Override

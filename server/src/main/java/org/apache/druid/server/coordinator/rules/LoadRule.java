@@ -99,9 +99,11 @@ public abstract class LoadRule implements Rule
       final CoordinatorStats stats
   )
   {
+    log.info("----az assign");
     // if primary replica already exists or is loading
     final int loading = params.getSegmentReplicantLookup().getTotalReplicants(segment.getId());
     if (!currentReplicants.isEmpty() || loading > 0) {
+      log.info("----az primary replica already exists or is loading");
       assignReplicas(params, segment, stats, null);
     } else {
       final ServerHolder primaryHolderToLoad = assignPrimary(params, segment);

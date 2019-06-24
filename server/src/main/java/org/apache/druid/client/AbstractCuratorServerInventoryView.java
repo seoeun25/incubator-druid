@@ -65,6 +65,8 @@ public abstract class AbstractCuratorServerInventoryView<InventoryType> implemen
   )
   {
     this.log = log;
+    log.info("----az AbstractCuratorServerInventoryView. announcementsPath=%s, inventoryPath=%s",
+             announcementsPath, inventoryPath);
     this.inventoryManager = new CuratorInventoryManager<>(
         curator,
         new InventoryManagerConfig()
@@ -110,7 +112,7 @@ public abstract class AbstractCuratorServerInventoryView<InventoryType> implemen
           @Override
           public void newContainer(DruidServer container)
           {
-            log.info("New Server[%s]", container);
+            log.info("----az New Server[%s]", container);
           }
 
           @Override

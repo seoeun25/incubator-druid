@@ -21,6 +21,7 @@ package org.apache.druid.server.coordinator.rules;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.druid.java.util.common.logger.Logger;
 import org.apache.druid.timeline.DataSegment;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -29,6 +30,8 @@ import org.joda.time.Interval;
  */
 public class IntervalDropRule extends DropRule
 {
+  private static final Logger log = new Logger(IntervalDropRule.class);
+
   private final Interval interval;
 
   @JsonCreator
@@ -55,6 +58,7 @@ public class IntervalDropRule extends DropRule
   @Override
   public boolean appliesTo(DataSegment segment, DateTime referenceTimestamp)
   {
+    log.info("----az dropInterval = %s, segmentInterval = %s", interval, segment.getInterval());
     return appliesTo(segment.getInterval(), referenceTimestamp);
   }
 

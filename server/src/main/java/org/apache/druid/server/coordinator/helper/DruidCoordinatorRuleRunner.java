@@ -133,11 +133,16 @@ public class DruidCoordinatorRuleRunner implements DruidCoordinatorHelper
 
     final List<SegmentId> segmentsWithMissingRules = Lists.newArrayListWithCapacity(MAX_MISSING_RULES);
     int missingRules = 0;
+    log.info("----az availableSegments [%s] to apply rule",
+             paramsWithReplicationManager.getAvailableSegments().size());
     for (DataSegment segment : paramsWithReplicationManager.getAvailableSegments()) {
       List<Rule> rules = databaseRuleManager.getRulesWithDefault(segment.getDataSource());
       boolean foundMatchingRule = false;
       for (Rule rule : rules) {
+        log.info("----az rule = %s, segment=%s,%s", rule.getClass().getSimpleName(),
+                 segment.getDataSource(), segment.getInterval());
         if (rule.appliesTo(segment, now)) {
+          log.info("    ----az rule.applies = true");
           stats.accumulate(rule.run(coordinator, paramsWithReplicationManager, segment));
           foundMatchingRule = true;
           break;

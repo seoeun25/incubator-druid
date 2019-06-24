@@ -60,6 +60,7 @@ public class CuratorDruidNodeAnnouncer implements DruidNodeAnnouncer
           discoveryDruidNode.getNodeType().toString(),
           discoveryDruidNode.getDruidNode().getHostAndPortToUse()
       );
+      log.info("----az zkPath = %s", path);
       announcer.announce(path, jsonMapper.writeValueAsBytes(discoveryDruidNode));
 
       log.info("Announced [%s].", discoveryDruidNode);

@@ -376,7 +376,7 @@ public class DruidSchema extends AbstractSchema
         setSegmentMetadataHolder(segment, holder);
         segmentsNeedingRefresh.add(segment);
         if (!server.segmentReplicatable()) {
-          log.debug("Added new mutable segment[%s].", segment.getId());
+          log.info("----az Added new mutable segment[%s].", segment.getId());
           mutableSegments.add(segment);
         } else {
           log.debug("Added new immutable segment[%s].", segment.getId());
@@ -396,7 +396,7 @@ public class DruidSchema extends AbstractSchema
           // If a segment shows up on a replicatable (historical) server at any point, then it must be immutable,
           // even if it's also available on non-replicatable (realtime) servers.
           mutableSegments.remove(segment);
-          log.debug("Segment[%s] has become immutable.", segment.getId());
+          log.info("----az Segment[%s] has become immutable.", segment.getId());
         }
       }
       if (!tables.containsKey(segment.getDataSource())) {
@@ -411,7 +411,7 @@ public class DruidSchema extends AbstractSchema
   void removeSegment(final DataSegment segment)
   {
     synchronized (lock) {
-      log.debug("Segment[%s] is gone.", segment.getId());
+      log.info("Segment[%s] is gone.", segment.getId());
 
       dataSourcesNeedingRebuild.add(segment.getDataSource());
       segmentsNeedingRefresh.remove(segment);

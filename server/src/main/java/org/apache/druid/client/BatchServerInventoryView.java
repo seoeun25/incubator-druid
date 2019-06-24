@@ -86,6 +86,8 @@ public class BatchServerInventoryView extends AbstractCuratorServerInventoryView
       final Set<DataSegment> inventory
   )
   {
+    log.info("----az addInnerInventory container=%s, key=%s, inventories=%s",
+             container.getName(), inventoryKey, inventory.size());
     Set<DataSegment> filteredInventory = filterInventory(container, inventory);
     zNodes.put(inventoryKey, filteredInventory);
     for (DataSegment segment : filteredInventory) {

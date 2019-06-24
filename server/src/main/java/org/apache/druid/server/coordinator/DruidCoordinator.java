@@ -81,6 +81,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
@@ -681,14 +682,14 @@ public class DruidCoordinator
                     .map(DruidServer::toImmutableDruidServer)
                     .collect(Collectors.toList());
 
-                if (log.isDebugEnabled()) {
+                if (log.isInfoEnabled()) {
                   // Display info about all historical servers
-                  log.debug("Servers");
+                  log.info("----az zkInventory. Historical Servers");
                   for (ImmutableDruidServer druidServer : servers) {
-                    log.debug("  %s", druidServer);
-                    log.debug("    -- DataSources");
+                    log.info("  %s", druidServer);
+                    log.info("    -- DataSources");
                     for (ImmutableDruidDataSource druidDataSource : druidServer.getDataSources()) {
-                      log.debug("    %s", druidDataSource);
+                      log.info("    %s", druidDataSource);
                     }
                   }
                 }
@@ -700,7 +701,7 @@ public class DruidCoordinator
                   if (!loadManagementPeons.containsKey(server.getName())) {
                     LoadQueuePeon loadQueuePeon = taskMaster.giveMePeon(server);
                     loadQueuePeon.start();
-                    log.info("Created LoadQueuePeon for server[%s].", server.getName());
+                    log.info("----az Created LoadQueuePeon for server[%s].", server.getName());
 
                     loadManagementPeons.put(server.getName(), loadQueuePeon);
                   }
@@ -712,6 +713,20 @@ public class DruidCoordinator
                           decommissioningServers.contains(server.getHost())
                       )
                   );
+                  ServerHolder holder = new ServerHolder(server,
+                                                         loadManagementPeons.get(server.getName()),
+                                                         decommissioningServers.contains(server.getHost()));
+                }
+                cluster.getRealtimes().stream()
+                       .forEach(serverHolder -> log.info("----az cluster.realtime = %s",
+                                                         serverHolder.getServer().getHost()));
+
+                for (Map.Entry<String, NavigableSet<ServerHolder>> entry : cluster.getHistoricals().entrySet()) {
+                  log.info("----az cluster. key = %s, historical servers = %s", entry.getKey(),
+                           entry.getValue().size());
+                  entry.getValue().stream().forEach(serverHolder -> log.info("    ----az cluster historical = %s",
+                                                                             serverHolder.getServer().getHost()));
+
                 }
 
                 segmentReplicantLookup = SegmentReplicantLookup.make(cluster);
@@ -722,7 +737,7 @@ public class DruidCoordinator
                   disappeared.remove(server.getName());
                 }
                 for (String name : disappeared) {
-                  log.info("Removing listener for server[%s] which is no longer there.", name);
+                  log.info("----az LoadQueuePeon. Removing listener for server[%s] which is no longer there.", name);
                   LoadQueuePeon peon = loadManagementPeons.remove(name);
                   peon.stop();
                 }
