@@ -142,6 +142,7 @@ public class SegmentTransactionalInsertAction implements TaskAction<SegmentPubli
     for (DataSegment segment : retVal.getSegments()) {
       metricBuilder.setDimension(DruidMetrics.INTERVAL, segment.getInterval().toString());
       toolbox.getEmitter().emit(metricBuilder.build("segment/added/bytes", segment.getSize()));
+      LOG.info("----az segment added = %s", segment);
     }
 
     return retVal;

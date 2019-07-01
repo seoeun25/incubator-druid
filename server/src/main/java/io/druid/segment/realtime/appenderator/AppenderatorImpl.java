@@ -90,6 +90,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -258,6 +259,7 @@ public class AppenderatorImpl implements Appenderator
         || rowsCurrentlyInMemory.get() >= tuningConfig.getMaxRowsInMemory()) {
       if (allowIncrementalPersists) {
         // persistAll clears rowsCurrentlyInMemory, no need to update it.
+        log.info("----az allowIncrementalPersists. before persistAll");
         Futures.addCallback(
             persistAll(committerSupplier == null ? null : committerSupplier.get()),
             new FutureCallback<Object>()
@@ -276,6 +278,10 @@ public class AppenderatorImpl implements Appenderator
             }
         );
       } else {
+        log.info("----az isPersistedRequired=true, %s, %s, %s",
+                 !sink.canAppendRow(),
+                 System.currentTimeMillis() > nextFlush,
+                 rowsCurrentlyInMemory.get() >= tuningConfig.getMaxRowsInMemory());
         isPersistRequired = true;
       }
     }
@@ -328,6 +334,7 @@ public class AppenderatorImpl implements Appenderator
       );
 
       try {
+        log.info("----az getSink. segmentAnnouncer = %s", retVal.getSegment());
         segmentAnnouncer.announceSegment(retVal.getSegment());
       }
       catch (IOException e) {
@@ -451,9 +458,12 @@ public class AppenderatorImpl implements Appenderator
       }
     }
 
-    log.info("Submitting persist runnable for dataSource[%s]", schema.getDataSource());
+    log.info("----az Submitting persist runnable for dataSource[%s]", schema.getDataSource());
+    log.info("----az numPersistedRows = %s", numPersistedRows);
 
-    final String threadName = StringUtils.format("%s-incremental-persist", schema.getDataSource());
+    int ran = new Random().nextInt();
+    final String threadName = StringUtils.format("%s-incremental-persist-%d", schema.getDataSource(),
+                                                 ran);
     final Object commitMetadata = committer == null ? null : committer.getMetadata();
     final Stopwatch runExecStopwatch = Stopwatch.createStarted();
     final Stopwatch persistStopwatch = Stopwatch.createStarted();
@@ -464,9 +474,13 @@ public class AppenderatorImpl implements Appenderator
           public Object doCall() throws IOException
           {
             try {
+              log.info("----az persistHydrant start");
+              int a = 0;
               for (Pair<FireHydrant, SegmentIdentifier> pair : indexesToPersist) {
+                log.info("----az persistHydrant. num = %s", a++);
                 metrics.incrementRowOutputCount(persistHydrant(pair.lhs, pair.rhs));
               }
+              log.info("----az persistHydrant end");
 
               if (committer != null) {
                 log.info(
@@ -511,6 +525,7 @@ public class AppenderatorImpl implements Appenderator
               metrics.incrementNumPersists();
               metrics.incrementPersistTimeMillis(persistStopwatch.elapsed(TimeUnit.MILLISECONDS));
               persistStopwatch.stop();
+              log.info("----az persist end finally.");
             }
           }
         }
@@ -527,6 +542,7 @@ public class AppenderatorImpl implements Appenderator
     // NB: The rows are still in memory until they're done persisting, but we only count rows in active indexes.
     rowsCurrentlyInMemory.addAndGet(-numPersistedRows);
 
+    log.info("----az persistAll. return. ");
     return future;
   }
 
@@ -636,7 +652,7 @@ public class AppenderatorImpl implements Appenderator
         }
       }
 
-      log.info("Pushing merged index for segment[%s].", identifier);
+      log.info("----az Pushing merged index for segment[%s].", identifier);
 
       removeDirectory(mergedTarget);
 
@@ -688,7 +704,7 @@ public class AppenderatorImpl implements Appenderator
 
       objectMapper.writeValue(descriptorFile, segment);
 
-      log.info("Pushed merged index for segment[%s], descriptor is: %s", identifier, segment);
+      log.info("----az Pushed merged index for segment[%s], descriptor is: %s", identifier, segment);
 
       return segment;
     }
@@ -1207,7 +1223,7 @@ public class AppenderatorImpl implements Appenderator
         return 0;
       }
 
-      log.info("Segment[%s], persisting Hydrant[%s]", identifier, indexToPersist);
+      log.info("----az Segment[%s], persisting Hydrant[%s]", identifier, indexToPersist);
 
       try {
         int numRows = indexToPersist.getIndex().size();
@@ -1229,6 +1245,8 @@ public class AppenderatorImpl implements Appenderator
                 indexIO.loadIndex(persistedFile)
             )
         );
+        log.info("----az persistedFile = %s, numRows = %s", persistedFile.getAbsolutePath(),
+                 numRows);
         return numRows;
       }
       catch (IOException e) {

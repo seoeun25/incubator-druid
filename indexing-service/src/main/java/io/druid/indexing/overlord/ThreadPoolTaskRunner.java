@@ -261,6 +261,8 @@ public class ThreadPoolTaskRunner implements TaskRunner, QuerySegmentWalker
         executorService.shutdownNow();
       }
     }
+    log.info("----az ThreadPoolTaskRunnerCallable submitted with task[%s]",
+             task.getClass().getName());
     final ListenableFuture<TaskStatus> statusFuture = exec.get(taskPriority)
                                                           .submit(new ThreadPoolTaskRunnerCallable(
                                                               task,
@@ -290,6 +292,7 @@ public class ThreadPoolTaskRunner implements TaskRunner, QuerySegmentWalker
         }
     );
 
+    log.info("----az return statusFuture");
     return statusFuture;
   }
 
@@ -435,6 +438,7 @@ public class ThreadPoolTaskRunner implements TaskRunner, QuerySegmentWalker
 
       try {
         log.info("Running task: %s", task.getId());
+        log.info("----az Running task[%s], %s", task.getType(), task.getClass().getSimpleName());
         TaskRunnerUtils.notifyLocationChanged(
             listeners,
             task.getId(),
@@ -466,6 +470,7 @@ public class ThreadPoolTaskRunner implements TaskRunner, QuerySegmentWalker
 
       status = status.withDuration(System.currentTimeMillis() - startTime);
       TaskRunnerUtils.notifyStatusChanged(listeners, task.getId(), status);
+      log.info("----az before return status at run(). status = %s", status);
       return status;
     }
   }

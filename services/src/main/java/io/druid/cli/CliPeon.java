@@ -247,6 +247,9 @@ public class CliPeon extends GuiceRunnable
           public Task readTask(@Json ObjectMapper mapper, ExecutorLifecycleConfig config)
           {
             try {
+              Task task = mapper.readValue(config.getTaskFile(), Task.class);
+              log.info("----az taskType = %s, task= %s", task.getType(),
+                       task.getClass().getName());
               return mapper.readValue(config.getTaskFile(), Task.class);
             }
             catch (IOException e) {

@@ -175,6 +175,8 @@ public class ExecutorLifecycle
       throw new ISE(e, "Failed to run task[%s] isReady", task.getId());
     }
 
+    log.info("----az taskRunner[%s].run Task[%s]", taskRunner.getClass().getSimpleName(),
+             task.getClass().getSimpleName());
     statusFuture = Futures.transform(
         taskRunner.run(task),
         new Function<TaskStatus, TaskStatus>()

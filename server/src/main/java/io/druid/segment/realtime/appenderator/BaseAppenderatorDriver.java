@@ -326,6 +326,8 @@ public abstract class BaseAppenderatorDriver implements Closeable
       if (existing != null) {
         return existing;
       } else {
+        log.info("----az Allocate new segment. timestamp=%s, sequenceName=%s",
+                 timestamp, sequenceName);
         // Allocate new segment.
         final SegmentsForSequence segmentsForSequence = segments.get(sequenceName);
         final SegmentIdentifier newSegment = segmentAllocator.allocate(
@@ -349,7 +351,7 @@ public abstract class BaseAppenderatorDriver implements Closeable
             }
           }
 
-          log.info("New segment[%s] for row[%s] sequenceName[%s].", newSegment, row, sequenceName);
+          log.info("----az New segment[%s] for row[%s] sequenceName[%s].", newSegment, row, sequenceName);
           addSegment(sequenceName, newSegment);
         } else {
           // Well, we tried.
@@ -544,7 +546,7 @@ public abstract class BaseAppenderatorDriver implements Closeable
             log.info("Nothing to publish, skipping publish step.");
           } else {
             log.info(
-                "Publishing segments with commitMetadata[%s]: [%s]",
+                "----az Publishing segments with commitMetadata[%s]: [%s]",
                 segmentsAndMetadata.getCommitMetadata(),
                 Joiner.on(", ").join(segmentsAndMetadata.getSegments())
             );

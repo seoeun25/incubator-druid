@@ -1448,6 +1448,7 @@ public class KafkaSupervisor implements Supervisor
         // set endOffsets as the next startOffsets
         for (Map.Entry<Integer, Long> entry : endOffsets.entrySet()) {
           partitionGroups.get(groupId).put(entry.getKey(), entry.getValue());
+          log.info("----az set endOffset at partitionGroup. [%s]=[%s]", entry.getKey(), entry.getValue());
         }
       } else {
         log.warn(
@@ -1465,6 +1466,7 @@ public class KafkaSupervisor implements Supervisor
 
       // remove this task group from the list of current task groups now that it has been handled
       taskGroups.remove(groupId);
+      log.info("----az removed[%s] from taskGroups", groupId);
     }
   }
 
@@ -1514,7 +1516,10 @@ public class KafkaSupervisor implements Supervisor
     final List<ListenableFuture<Map<Integer, Long>>> pauseFutures = Lists.newArrayList();
     final List<String> pauseTaskIds = ImmutableList.copyOf(taskGroup.taskIds());
     for (final String taskId : pauseTaskIds) {
-      pauseFutures.add(taskClient.pauseAsync(taskId));
+      //pauseFutures.add(taskClient.pauseAsync(taskId));
+      ListenableFuture<Map<Integer, Long>> pauseFuture = taskClient.pauseAsync(taskId);
+      log.info("----az pauseFuture = %s", pauseFuture);
+      pauseFutures.add(pauseFuture);
     }
 
     return Futures.transform(
@@ -1537,6 +1542,10 @@ public class KafkaSupervisor implements Supervisor
 
               } else { // otherwise build a map of the highest offsets seen
                 for (Map.Entry<Integer, Long> offset : result.entrySet()) {
+                  if (endOffsets.containsKey(offset.getKey())) {
+                    log.info("----az endOffset = %s, offset = %s",
+                             endOffsets.get(offset.getKey()), offset.getValue());
+                  }
                   if (!endOffsets.containsKey(offset.getKey())
                       || endOffsets.get(offset.getKey()).compareTo(offset.getValue()) < 0) {
                     endOffsets.put(offset.getKey(), offset.getValue());
@@ -1876,10 +1885,12 @@ public class KafkaSupervisor implements Supervisor
       if (offset != null && offset != NOT_SET) {
         // if we are given a startingOffset (set by a previous task group which is pending completion) then use it
         builder.put(partition, offset);
+        log.info("----az offset given. from pervious task. partition[s]=%s", partition, offset);
       } else {
         // if we don't have a startingOffset (first run or we had some previous failures and reset the offsets) then
         // get the offset from metadata storage (if available) or Kafka (otherwise)
         builder.put(partition, getOffsetFromStorageForPartition(partition));
+        log.info("----az offset form storage. partition[%s]=%s", partition, offset);
       }
     }
     return builder.build();

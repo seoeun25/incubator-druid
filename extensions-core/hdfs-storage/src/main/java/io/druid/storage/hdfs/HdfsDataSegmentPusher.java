@@ -94,7 +94,7 @@ public class HdfsDataSegmentPusher implements DataSegmentPusher
     final String storageDir = this.getStorageDir(segment, false);
 
     log.info(
-        "Copying segment[%s] to HDFS at location[%s/%s]",
+        "----az Copying segment[%s] to HDFS at location[%s/%s]",
         segment.getIdentifier(),
         fullyQualifiedStorageDirectory,
         storageDir

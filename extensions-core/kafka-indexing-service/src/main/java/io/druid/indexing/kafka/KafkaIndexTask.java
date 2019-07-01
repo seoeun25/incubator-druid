@@ -418,6 +418,7 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
             lookupNodeService.getName(), lookupNodeService
         )
     );
+    log.info("----az discoveryDruidNode = %s", discoveryDruidNode.getDruidNode().getHostAndPort());
 
     Throwable caughtExceptionOuter = null;
     try (final KafkaConsumer<byte[], byte[]> consumer = newConsumer()) {
@@ -482,6 +483,11 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
         final Map<Integer, Long> snapshot = ImmutableMap.copyOf(nextOffsets);
         lastPersistedOffsets.clear();
         lastPersistedOffsets.putAll(snapshot);
+        lastPersistedOffsets.entrySet()
+                            .stream()
+                            .forEach(entry -> log.info("----az commitSupplier. lastPersistedOffset %s = %s",
+                                                       entry.getKey(),
+                                                       entry.getValue()));
 
         return new Committer()
         {
@@ -531,9 +537,11 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
           // if stop is requested or task's end offset is set by call to setEndOffsets method with finish set to true
           if (stopRequested.get() || sequences.get(sequences.size() - 1).isCheckpointed()) {
             status = Status.PUBLISHING;
+            log.info("----az status = %s", status);
           }
 
           if (stopRequested.get()) {
+            log.info("----stopRequested");
             break;
           }
 
@@ -598,6 +606,8 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
                     .findFirst()
                     .orElse(null);
 
+                log.info("----az InputRows. rows = %s, sequence = %s, recordPartition = %s, nextoffset=%s",
+                         rows.size(), sequenceToUse.getSequenceName(), record.partition(), nextOffsets);
                 if (sequenceToUse == null) {
                   throw new ISE(
                       "WTH?! cannot find any valid sequence for record with partition [%d] and offset [%d]. Current sequences: %s",
@@ -630,8 +640,11 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
                       // If the number of rows in the segment exceeds the threshold after adding a row,
                       // move the segment out from the active segments of BaseAppenderatorDriver to make a new segment.
                       if (addResult.getNumRowsInSegment() > tuningConfig.getMaxRowsPerSegment()) {
+                        log.info("----az getNumRowsInSegment()[%s] > tuningConfig.getMaxRowsPerSegment()[%s]",
+                                 addResult.getNumRowsInSegment(), tuningConfig.getMaxRowsPerSegment());
                         if (!sequenceToUse.isCheckpointed()) {
                           sequenceToCheckpoint = sequenceToUse;
+                          log.info("----az NOT checkpointed. sequenceToCheckpoint = %s", sequenceToCheckpoint);
                         }
                       }
                       isPersistRequired |= addResult.isPersistRequired();
@@ -648,6 +661,7 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
                   }
                 }
                 if (isPersistRequired) {
+                  log.info("----az isPersistRequired");
                   Futures.addCallback(
                       driver.persistAsync(committerSupplier.get()),
                       new FutureCallback<Object>()
@@ -703,7 +717,9 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
                 sequenceToCheckpoint,
                 sequences
             );
+            log.info("----az sequenceToCheckpoint!=null. requestPause");
             requestPause();
+            log.info("----az after requestPause. resumed. need CheckpointDatasource");
             final CheckPointDataSourceMetadataAction checkpointAction = new CheckPointDataSourceMetadataAction(
                 getDataSource(),
                 ioConfig.getTaskGroupId(),
@@ -711,11 +727,13 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
                 new KafkaDataSourceMetadata(new KafkaPartitions(topic, sequenceToCheckpoint.getStartOffsets())),
                 new KafkaDataSourceMetadata(new KafkaPartitions(topic, nextOffsets))
             );
+            log.info("----az toolbox.taskActionClient.submit (checkpointaction)");
             if (!toolbox.getTaskActionClient().submit(checkpointAction)) {
               throw new ISE("Checkpoint request with offsets [%s] failed, dying", nextOffsets);
             }
           }
         }
+        log.info("----az finish MainLoop");
       }
       catch (Exception e) {
         // (1) catch all exceptions while reading from kafka
@@ -743,9 +761,13 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
         }
 
         status = Status.PUBLISHING;
+        log.info("----az statusLock. status = %s", status);
       }
 
+      log.info("----az before publishing. sequences = %s", sequences);
+      log.info("----az publishingSequences = %s", publishingSequences);
       for (SequenceMetadata sequenceMetadata : sequences) {
+        log.info("----az sequenceMetadata = %s", sequenceMetadata.getSequenceName());
         if (!publishingSequences.contains(sequenceMetadata.getSequenceName())) {
           // this is done to prevent checks in sequence specific commit supplier from failing
           sequenceMetadata.setEndOffsets(nextOffsets);
@@ -755,6 +777,7 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
           publishAndRegisterHandoff(sequenceMetadata);
         }
       }
+      log.info("---- az publishAndRegisterHandoff end");
 
       if (backgroundThreadException != null) {
         throw new RuntimeException(backgroundThreadException);
@@ -845,6 +868,7 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
       throw e;
     }
     finally {
+      log.info("----az consumer finally");
       try {
         if (driver != null) {
           driver.close();
@@ -1371,8 +1395,10 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
               }
           )
       );
+      log.info("----restoreSequences true");
       return true;
     } else {
+      log.info("----restoreSequences false");
       return false;
     }
   }
@@ -1793,6 +1819,7 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
               false
           );
           sequences.add(newSequence);
+          log.info("----az not finish. setEndOffset.lastestSequence= %s", newSequence);
         }
 
         persistSequences();
@@ -1849,6 +1876,7 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
   ) throws InterruptedException
   {
     authorizationCheck(req, Action.WRITE);
+    log.info("---- HTTP request pause");
     return pause();
   }
 
@@ -1902,6 +1930,7 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
   @Path("/resume")
   public Response resumeHTTP(@Context final HttpServletRequest req) throws InterruptedException
   {
+    log.info("----az HTTP request resume");
     authorizationCheck(req, Action.WRITE);
     resume();
     return Response.status(Response.Status.OK).build();
