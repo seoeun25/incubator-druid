@@ -255,6 +255,7 @@ public class CuratorLoadQueuePeon extends LoadQueuePeon
 
       log.info("Server[%s] processing segment[%s]", basePath, currentlyProcessing.getSegmentIdentifier());
       final String path = ZKPaths.makePath(basePath, currentlyProcessing.getSegmentIdentifier());
+      log.info("----az path = %s", path);
       final byte[] payload = jsonMapper.writeValueAsBytes(currentlyProcessing.getChangeRequest());
       curator.create().withMode(CreateMode.EPHEMERAL).forPath(path, payload);
 

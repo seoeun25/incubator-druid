@@ -86,6 +86,8 @@ public class BatchServerInventoryView extends AbstractCuratorServerInventoryView
       final Set<DataSegment> inventory
   )
   {
+    log.info("----az addInnerInventory container=%s, key=%s, inventories=%s",
+             container.getName(), inventoryKey, inventory.size());
     Set<DataSegment> filteredInventory = filterInventory(container, inventory);
     zNodes.put(inventoryKey, filteredInventory);
     for (DataSegment segment : filteredInventory) {
@@ -157,7 +159,7 @@ public class BatchServerInventoryView extends AbstractCuratorServerInventoryView
   @Override
   protected DruidServer removeInnerInventory(final DruidServer container, String inventoryKey)
   {
-    log.debug("Server[%s] removed container[%s]", container.getName(), inventoryKey);
+    log.info("----az removeInnerInventory Server[%s] removed container[%s]", container.getName(), inventoryKey);
     Set<DataSegment> segments = zNodes.remove(inventoryKey);
 
     if (segments == null) {

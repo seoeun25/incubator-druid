@@ -221,6 +221,7 @@ public class CuratorInventoryManager<ContainerClass, InventoryClass>
     @Override
     public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception
     {
+      log.info("----az Event = %s", event.getType());
       switch (event.getType()) {
         case CHILD_ADDED:
           synchronized (lock) {
@@ -251,7 +252,7 @@ public class CuratorInventoryManager<ContainerClass, InventoryClass>
 
               containers.put(containerKey, new ContainerHolder(container, inventoryCache));
 
-              log.debug("Starting inventory cache for %s, inventoryPath %s", containerKey, inventoryPath);
+              log.info("Starting inventory cache for %s, inventoryPath %s", containerKey, inventoryPath);
               inventoryCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
               strategy.newContainer(container);
             }
@@ -362,6 +363,7 @@ public class CuratorInventoryManager<ContainerClass, InventoryClass>
         this.inventoryPath = inventoryPath;
 
         log.info("Created new InventoryCacheListener for %s", inventoryPath);
+        log.info("----az new InventoryCacheListener. containerKey = %s", containerKey);
       }
 
       @Override
