@@ -606,8 +606,6 @@ public class KafkaIndexTask extends AbstractTask implements ChatHandler
                     .findFirst()
                     .orElse(null);
 
-                log.info("----az InputRows. rows = %s, sequence = %s, recordPartition = %s, nextoffset=%s",
-                         rows.size(), sequenceToUse.getSequenceName(), record.partition(), nextOffsets);
                 if (sequenceToUse == null) {
                   throw new ISE(
                       "WTH?! cannot find any valid sequence for record with partition [%d] and offset [%d]. Current sequences: %s",
