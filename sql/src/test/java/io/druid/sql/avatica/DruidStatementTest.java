@@ -44,7 +44,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.List;
+import java.util.Properties;
 
 public class DruidStatementTest extends CalciteTestBase
 {
@@ -193,5 +198,34 @@ public class DruidStatementTest extends CalciteTestBase
         frame
     );
     Assert.assertTrue(statement.isDone());
+  }
+
+  @Test
+  public void testAbc()
+  {
+
+    System.out.println("aaa");
+    String query = "SELECT * FROM \"druid-metric\" LIMIT 10";
+    String url = "jdbc:avatica:remote:url=http://azra:8082/druid/v2/sql/avatica/";
+
+// Set any connection context parameters you need here (see "Connection context" below).
+// Or leave empty for default behavior.
+    Properties connectionProperties = new Properties();
+    connectionProperties.setProperty("requestType", "workbench");
+
+    try (Connection connection = DriverManager.getConnection(url, connectionProperties)) {
+      try (
+          final Statement statement = connection.createStatement();
+          final ResultSet resultSet = statement.executeQuery(query)
+      ) {
+        while (resultSet.next()) {
+          // Do something
+        }
+      }
+    }
+    catch (Exception e) {
+      System.out.println(e);
+    }
+
   }
 }
