@@ -22,6 +22,7 @@ package io.druid.server;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import io.druid.java.util.common.logger.Logger;
 import io.druid.java.util.emitter.service.ServiceEmitter;
 import io.druid.client.CachingClusteredClient;
 import io.druid.query.FluentQueryRunnerBuilder;
@@ -41,6 +42,8 @@ import org.joda.time.Interval;
  */
 public class ClientQuerySegmentWalker implements QuerySegmentWalker
 {
+  private static final Logger log = new Logger(ClientQuerySegmentWalker.class);
+
   private final ServiceEmitter emitter;
   private final CachingClusteredClient baseClient;
   private final QueryToolChestWarehouse warehouse;
@@ -80,6 +83,8 @@ public class ClientQuerySegmentWalker implements QuerySegmentWalker
 
   private <T> QueryRunner<T> makeRunner(Query<T> query, QueryRunner<T> baseClientRunner)
   {
+    log.info("----az makeRunner. baseClientRunner =>>> %s ", baseClientRunner);
+
     QueryToolChest<T, Query<T>> toolChest = warehouse.getToolChest(query);
     PostProcessingOperator<T> postProcessing = objectMapper.convertValue(
         query.<String>getContextValue("postProcessing"),
@@ -88,6 +93,7 @@ public class ClientQuerySegmentWalker implements QuerySegmentWalker
         }
     );
 
+    log.info("---- az postProcessing = %s", postProcessing);
     return new FluentQueryRunnerBuilder<>(toolChest)
         .create(
             new SetAndVerifyContextQueryRunner(

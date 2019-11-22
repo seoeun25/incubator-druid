@@ -165,6 +165,7 @@ public class DirectDruidClient<T> implements QueryRunner<T>
   {
     final Query<T> query = queryPlus.getQuery();
     QueryToolChest<T, Query<T>> toolChest = warehouse.getToolChest(query);
+    log.info("----az toolChest = %s", toolChest);
     boolean isBySegment = QueryContexts.isBySegment(query);
 
     Pair<JavaType, JavaType> types = typesMap.get(query.getClass());
@@ -190,7 +191,7 @@ public class DirectDruidClient<T> implements QueryRunner<T>
     final String cancelUrl = StringUtils.format("%s://%s/druid/v2/%s", scheme, host, query.getId());
 
     try {
-      log.debug("Querying queryId[%s] url[%s]", query.getId(), url);
+      log.info("Querying queryId[%s] url[%s]", query.getId(), url);
 
       final long requestStartTimeNs = System.nanoTime();
 
@@ -213,6 +214,7 @@ public class DirectDruidClient<T> implements QueryRunner<T>
           if (queryMetrics == null) {
             queryMetrics = toolChest.makeMetrics(query);
             queryMetrics.server(host);
+            log.info("----az queryMetrics. host = %s, metrics = %s", host, queryMetrics);
           }
           return queryMetrics;
         }
@@ -223,10 +225,10 @@ public class DirectDruidClient<T> implements QueryRunner<T>
           checkQueryTimeout();
           checkTotalBytesLimit(response.getContent().readableBytes());
 
-          log.debug("Initial response from url[%s] for queryId[%s]", url, query.getId());
+          log.info("Initial response from url[%s] for queryId[%s]", url, query.getId());
           responseStartTimeNs = System.nanoTime();
           acquireResponseMetrics().reportNodeTimeToFirstByte(responseStartTimeNs - requestStartTimeNs).emit(emitter);
-
+          log.info("----az reportNodeTimeToFirstByte");
           try {
             final String responseContext = response.headers().get("X-Druid-Response-Context");
             // context may be null in case of error or query timeout
@@ -334,7 +336,7 @@ public class DirectDruidClient<T> implements QueryRunner<T>
           long stopTimeNs = System.nanoTime();
           long nodeTimeNs = stopTimeNs - requestStartTimeNs;
           final long nodeTimeMs = TimeUnit.NANOSECONDS.toMillis(nodeTimeNs);
-          log.debug(
+          log.info(
               "Completed queryId[%s] request to url[%s] with %,d bytes returned in %,d millis [%,f b/s].",
               query.getId(),
               url,
@@ -346,6 +348,7 @@ public class DirectDruidClient<T> implements QueryRunner<T>
           responseMetrics.reportNodeTime(nodeTimeNs);
           responseMetrics.reportNodeBytes(byteCount.get());
           responseMetrics.emit(emitter);
+          log.info("----az reportNodeTime, noteBytes, emit");
           synchronized (done) {
             try {
               // An empty byte array is put at the end to give the SequenceInputStream.close() as something to close out

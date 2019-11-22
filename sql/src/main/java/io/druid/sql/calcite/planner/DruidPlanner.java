@@ -27,6 +27,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import io.druid.java.util.common.guava.Sequence;
 import io.druid.java.util.common.guava.Sequences;
+import io.druid.java.util.common.logger.Logger;
 import io.druid.server.security.Access;
 import io.druid.server.security.AuthConfig;
 import io.druid.server.security.AuthenticationResult;
@@ -69,6 +70,8 @@ import java.util.Set;
 
 public class DruidPlanner implements Closeable
 {
+  private static final Logger log = new Logger(DruidPlanner.class);
+
   private final Planner planner;
   private final PlannerContext plannerContext;
   private final AuthorizerMapper authorizerMapper;
@@ -175,6 +178,7 @@ public class DruidPlanner implements Closeable
       throw new ForbiddenException(authResult.toString());
     }
 
+    log.info("----az plan WithDruidConvenntion. explain = %s", explain);
     if (explain != null) {
       return planExplanation(druidRel, explain);
     } else {
@@ -183,6 +187,7 @@ public class DruidPlanner implements Closeable
         @Override
         public Sequence<Object[]> get()
         {
+          log.info("----az resultSuppler.get ");
           if (root.isRefTrivial()) {
             return druidRel.runQuery();
           } else {
@@ -314,6 +319,7 @@ public class DruidPlanner implements Closeable
       final SqlExplain explain
   )
   {
+    log.info("----az planExplanation");
     final String explanation = RelOptUtil.dumpPlan("", rel, explain.getFormat(), explain.getDetailLevel());
     final Supplier<Sequence<Object[]>> resultsSupplier = Suppliers.ofInstance(
         Sequences.simple(ImmutableList.of(new Object[]{explanation})));

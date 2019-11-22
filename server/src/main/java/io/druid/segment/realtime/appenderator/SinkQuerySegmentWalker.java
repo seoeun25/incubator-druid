@@ -62,6 +62,8 @@ import org.joda.time.Interval;
 import java.io.Closeable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+import java.util.function.ObjLongConsumer;
 
 public class SinkQuerySegmentWalker implements QuerySegmentWalker
 {
@@ -286,6 +288,7 @@ public class SinkQuerySegmentWalker implements QuerySegmentWalker
     // better would need to involve another accumulator like the cpuTimeAccumulator that we could share with the
     // sinkRunner.
 
+    log.info("----az CPUTimeMetricQueryRunner.");
     return CPUTimeMetricQueryRunner.safeBuild(
         new MetricsEmittingQueryRunner<>(
             emitter,

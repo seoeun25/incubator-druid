@@ -147,6 +147,7 @@ public class CachingClusteredClient implements QuerySegmentWalker
   @Override
   public <T> QueryRunner<T> getQueryRunnerForIntervals(final Query<T> query, final Iterable<Interval> intervals)
   {
+    log.info("----az getQueryRunnerForIntervals");
     return new QueryRunner<T>()
     {
       @Override
@@ -167,12 +168,14 @@ public class CachingClusteredClient implements QuerySegmentWalker
       final UnaryOperator<TimelineLookup<String, ServerSelector>> timelineConverter
   )
   {
+    log.info("----az CachingClusteredClient.run");
     return new SpecificQueryRunnable<>(queryPlus, responseContext).run(timelineConverter);
   }
 
   @Override
   public <T> QueryRunner<T> getQueryRunnerForSegments(final Query<T> query, final Iterable<SegmentDescriptor> specs)
   {
+    log.info("----az getQueryRunnerForSegments");
     return new QueryRunner<T>()
     {
       @Override
@@ -255,6 +258,7 @@ public class CachingClusteredClient implements QuerySegmentWalker
 
     Sequence<T> run(final UnaryOperator<TimelineLookup<String, ServerSelector>> timelineConverter)
     {
+      log.info("----az SpecificQueryRunnable.run");
       @Nullable TimelineLookup<String, ServerSelector> timeline = serverView.getTimeline(query.getDataSource());
       if (timeline == null) {
         return Sequences.empty();
@@ -265,6 +269,7 @@ public class CachingClusteredClient implements QuerySegmentWalker
       }
 
       final Set<ServerToSegment> segments = computeSegmentsToQuery(timeline);
+      log.info("----az segments = %s", segments.size());
       @Nullable final byte[] queryCacheKey = computeQueryCacheKey();
       if (query.getContext().get(QueryResource.HEADER_IF_NONE_MATCH) != null) {
         @Nullable final String prevEtag = (String) query.getContext().get(QueryResource.HEADER_IF_NONE_MATCH);
@@ -276,10 +281,14 @@ public class CachingClusteredClient implements QuerySegmentWalker
 
       final List<Pair<Interval, byte[]>> alreadyCachedResults = pruneSegmentsWithCachedResults(queryCacheKey, segments);
       final SortedMap<DruidServer, List<SegmentDescriptor>> segmentsByServer = groupSegmentsByServer(segments);
+      segmentsByServer.entrySet().forEach(entry -> log.info("---- az. druidServer = %s, segments = %s",
+                                                             entry.getKey().getHostAndPort(),
+                                                             entry.getValue()));
       return new LazySequence<>(() -> {
         List<Sequence<T>> sequencesByInterval = new ArrayList<>(alreadyCachedResults.size() + segmentsByServer.size());
         addSequencesFromCache(sequencesByInterval, alreadyCachedResults);
         addSequencesFromServer(sequencesByInterval, segmentsByServer);
+        log.info("----az sequencesByInterval.size = %s", sequencesByInterval.size());
         return Sequences
             .simple(sequencesByInterval)
             .flatMerge(seq -> seq, query.getResultOrdering());
@@ -537,6 +546,7 @@ public class CachingClusteredClient implements QuerySegmentWalker
         final SortedMap<DruidServer, List<SegmentDescriptor>> segmentsByServer
     )
     {
+      log.info("----az addSequencesFromServer");
       segmentsByServer.forEach((server, segmentsOfServer) -> {
         final QueryRunner serverRunner = serverView.getQueryRunner(server);
 
@@ -565,6 +575,7 @@ public class CachingClusteredClient implements QuerySegmentWalker
         final MultipleSpecificSegmentSpec segmentsOfServerSpec
     )
     {
+      log.info("----az getBySegmentServerResults. serverRunner = %s", serverRunner);
       Sequence<Result<BySegmentResultValueClass<T>>> resultsBySegments = serverRunner
           .run(queryPlus.withQuerySegmentSpec(segmentsOfServerSpec), responseContext);
       // bySegment results need to be de-serialized, see DirectDruidClient.run()
@@ -582,6 +593,7 @@ public class CachingClusteredClient implements QuerySegmentWalker
         final MultipleSpecificSegmentSpec segmentsOfServerSpec
     )
     {
+      log.info("----az getSimpleServerResults. serverRunner.run = %s", serverRunner);
       return serverRunner.run(queryPlus.withQuerySegmentSpec(segmentsOfServerSpec), responseContext);
     }
 
@@ -590,6 +602,7 @@ public class CachingClusteredClient implements QuerySegmentWalker
         final MultipleSpecificSegmentSpec segmentsOfServerSpec
     )
     {
+      log.info("----az getAndCacheServerResults. serverRunner = %s", serverRunner);
       @SuppressWarnings("unchecked")
       final Sequence<Result<BySegmentResultValueClass<T>>> resultsBySegments = serverRunner.run(
           queryPlus

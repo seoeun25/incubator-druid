@@ -53,6 +53,7 @@ public class RetryQueryRunner<T> implements QueryRunner<T>
     this.baseRunner = baseRunner;
     this.config = config;
     this.jsonMapper = jsonMapper;
+    log.info("----az baseRunner = %s", baseRunner);
   }
 
   @Override

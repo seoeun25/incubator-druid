@@ -31,6 +31,7 @@ import io.druid.java.util.common.DateTimes;
 import io.druid.java.util.common.ISE;
 import io.druid.java.util.common.guava.Sequence;
 import io.druid.java.util.common.guava.Sequences;
+import io.druid.java.util.common.logger.Logger;
 import io.druid.math.expr.Evals;
 import io.druid.query.Query;
 import io.druid.query.Result;
@@ -69,6 +70,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class QueryMaker
 {
+  private static final Logger log = new Logger(QueryMaker.class);
+
   private final QueryLifecycleFactory queryLifecycleFactory;
   private final PlannerContext plannerContext;
   private final ObjectMapper jsonMapper;
@@ -268,6 +271,7 @@ public class QueryMaker
   {
     Hook.QUERY_PLAN.run(query);
     final AuthenticationResult authenticationResult = plannerContext.getAuthenticationResult();
+    log.info("----az runQuery. query = %s", query);
     return queryLifecycleFactory.factorize().runSimple(query, authenticationResult, null);
   }
 

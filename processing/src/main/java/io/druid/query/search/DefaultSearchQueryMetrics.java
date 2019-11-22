@@ -19,6 +19,7 @@
 
 package io.druid.query.search;
 
+import io.druid.java.util.common.logger.Logger;
 import io.druid.java.util.emitter.service.ServiceEmitter;
 import io.druid.collections.bitmap.BitmapFactory;
 import io.druid.java.util.common.ISE;
@@ -37,6 +38,7 @@ import java.util.List;
  */
 public class DefaultSearchQueryMetrics implements SearchQueryMetrics
 {
+  private static final Logger log = new Logger(SearchQueryMetrics.class);
   private QueryMetrics<Query<?>> delegateQueryMetrics;
 
 
@@ -181,6 +183,7 @@ public class DefaultSearchQueryMetrics implements SearchQueryMetrics
   @Override
   public QueryMetrics reportSegmentTime(long timeNs)
   {
+    log.info("----az reportSegmentTime. SearchQuery");
     return delegateQueryMetrics.reportSegmentTime(timeNs);
   }
 

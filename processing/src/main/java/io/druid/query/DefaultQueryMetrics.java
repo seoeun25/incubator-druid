@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import io.druid.java.util.common.logger.Logger;
 import io.druid.java.util.emitter.service.ServiceEmitter;
 import io.druid.java.util.emitter.service.ServiceMetricEvent;
 import io.druid.collections.bitmap.BitmapFactory;
@@ -41,6 +42,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class DefaultQueryMetrics<QueryType extends Query<?>> implements QueryMetrics<QueryType>
 {
+  private static final Logger log = new Logger(DefaultQueryMetrics.class);
   protected final ObjectMapper jsonMapper;
   protected final ServiceMetricEvent.Builder builder = new ServiceMetricEvent.Builder();
   protected final Map<String, Number> metrics = new HashMap<>();
@@ -156,6 +158,7 @@ public class DefaultQueryMetrics<QueryType extends Query<?>> implements QueryMet
   @Override
   public void success(boolean success)
   {
+    log.info("----az success.");
     setDimension("success", String.valueOf(success));
   }
 
@@ -210,12 +213,14 @@ public class DefaultQueryMetrics<QueryType extends Query<?>> implements QueryMet
   @Override
   public QueryMetrics<QueryType> reportWaitTime(long timeNs)
   {
+    log.info("----az reportWaitTime DefaultQueryMetrics");
     return reportMillisTimeMetric("query/wait/time", timeNs);
   }
 
   @Override
   public QueryMetrics<QueryType> reportSegmentTime(long timeNs)
   {
+    log.info("----az reportSegmentTime DefaultQueryMetrics");
     return reportMillisTimeMetric("query/segment/time", timeNs);
   }
 

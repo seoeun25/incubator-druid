@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import io.druid.java.util.common.ISE;
 import io.druid.java.util.common.guava.Sequence;
 import io.druid.java.util.common.guava.Sequences;
+import io.druid.java.util.common.logger.Logger;
 import io.druid.query.aggregation.MetricManipulationFn;
 import io.druid.query.aggregation.MetricManipulatorFns;
 
@@ -34,6 +35,8 @@ import java.util.Map;
  */
 public class FinalizeResultsQueryRunner<T> implements QueryRunner<T>
 {
+  private static final Logger log = new Logger(FinalizeResultsQueryRunner.class);
+
   private final QueryRunner<T> baseRunner;
   private final QueryToolChest<T, Query<T>> toolChest;
 
@@ -49,6 +52,7 @@ public class FinalizeResultsQueryRunner<T> implements QueryRunner<T>
   @Override
   public Sequence<T> run(final QueryPlus<T> queryPlus, Map<String, Object> responseContext)
   {
+    log.info("----az FinalizeResultsQueryRunner.run. baseRunner = %s", baseRunner);
     final Query<T> query = queryPlus.getQuery();
     final boolean isBySegment = QueryContexts.isBySegment(query);
     final boolean shouldFinalize = QueryContexts.isFinalize(query, true);

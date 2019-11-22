@@ -368,6 +368,7 @@ public class AppenderatorImpl implements Appenderator
       throw new IllegalStateException("Don't query me, bro.");
     }
 
+    log.info("----az taxtaRanger = %s", texasRanger);
     return texasRanger.getQueryRunnerForSegments(query, specs);
   }
 

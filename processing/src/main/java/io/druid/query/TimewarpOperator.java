@@ -26,6 +26,7 @@ import io.druid.data.input.MapBasedRow;
 import io.druid.java.util.common.DateTimes;
 import io.druid.java.util.common.guava.Sequence;
 import io.druid.java.util.common.guava.Sequences;
+import io.druid.java.util.common.logger.Logger;
 import io.druid.query.spec.MultipleIntervalSegmentSpec;
 import io.druid.query.timeboundary.TimeBoundaryQuery;
 import io.druid.query.timeboundary.TimeBoundaryResultValue;
@@ -44,6 +45,8 @@ import java.util.Map;
  */
 public class TimewarpOperator<T> implements PostProcessingOperator<T>
 {
+  private static final Logger log = new Logger(TimewarpOperator.class);
+
   private final Interval dataInterval;
   private final long periodMillis;
   private final long originMillis;
@@ -76,6 +79,7 @@ public class TimewarpOperator<T> implements PostProcessingOperator<T>
 
   public QueryRunner<T> postProcess(final QueryRunner<T> baseRunner, final long now)
   {
+    log.info("----az postProcess");
     return new QueryRunner<T>()
     {
       @Override

@@ -22,6 +22,7 @@ package io.druid.query.spec;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.druid.java.util.common.JodaUtils;
+import io.druid.java.util.common.logger.Logger;
 import io.druid.query.Query;
 import io.druid.query.QueryRunner;
 import io.druid.query.QuerySegmentWalker;
@@ -34,6 +35,8 @@ import java.util.List;
  */
 public class MultipleIntervalSegmentSpec implements QuerySegmentSpec
 {
+  private static final Logger log = new Logger(MultipleIntervalSegmentSpec.class);
+
   private final List<Interval> intervals;
 
   @JsonCreator
@@ -54,6 +57,7 @@ public class MultipleIntervalSegmentSpec implements QuerySegmentSpec
   @Override
   public <T> QueryRunner<T> lookup(Query<T> query, QuerySegmentWalker walker)
   {
+    log.info("----az MultipleIntervalSegmentSpec. lookup. walker.getQueryRunner");
     return walker.getQueryRunnerForIntervals(query, intervals);
   }
 

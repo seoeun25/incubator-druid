@@ -19,6 +19,7 @@
 
 package io.druid.query.spec;
 
+import io.druid.java.util.common.logger.Logger;
 import io.druid.query.Query;
 import io.druid.query.QueryRunner;
 import io.druid.query.QuerySegmentWalker;
@@ -32,6 +33,8 @@ import java.util.List;
 */
 public class SpecificSegmentSpec implements QuerySegmentSpec
 {
+  private static final Logger log = new Logger(SpecificSegmentSpec.class);
+
   private final SegmentDescriptor descriptor;
 
   public SpecificSegmentSpec(SegmentDescriptor descriptor)
@@ -48,6 +51,7 @@ public class SpecificSegmentSpec implements QuerySegmentSpec
   @Override
   public <T> QueryRunner<T> lookup(Query<T> query, QuerySegmentWalker walker)
   {
+    log.info("----az lookup");
     return walker.getQueryRunnerForSegments(query, Collections.singletonList(descriptor));
   }
 

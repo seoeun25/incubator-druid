@@ -112,6 +112,7 @@ public class ServerManager implements QuerySegmentWalker
   @Override
   public <T> QueryRunner<T> getQueryRunnerForIntervals(Query<T> query, Iterable<Interval> intervals)
   {
+    log.info("----az getQueryRunnerForIntervals");
     final QueryRunnerFactory<T, Query<T>> factory = conglomerate.findFactory(query);
     if (factory == null) {
       throw new ISE("Unknown query type[%s].", query.getClass());
@@ -205,6 +206,7 @@ public class ServerManager implements QuerySegmentWalker
   @Override
   public <T> QueryRunner<T> getQueryRunnerForSegments(Query<T> query, Iterable<SegmentDescriptor> specs)
   {
+    log.info("----az getQueryRunnerForSegments");
     final QueryRunnerFactory<T, Query<T>> factory = conglomerate.findFactory(query);
     if (factory == null) {
       log.makeAlert("Unknown query type, [%s]", query.getClass())
@@ -251,6 +253,7 @@ public class ServerManager implements QuerySegmentWalker
                 }
 
                 final ReferenceCountingSegment adapter = chunk.getObject();
+                log.info("----az buildAndDecorateQueryRunner before");
                 return Collections.singletonList(
                     buildAndDecorateQueryRunner(factory, toolChest, adapter, input, cpuTimeAccumulator)
                 );
@@ -280,6 +283,7 @@ public class ServerManager implements QuerySegmentWalker
   {
     SpecificSegmentSpec segmentSpec = new SpecificSegmentSpec(segmentDescriptor);
     String segmentId = adapter.getIdentifier();
+    log.info("----az buildAndDecorateQueryRunner. segment = %s", segmentDescriptor);
     return new SetAndVerifyContextQueryRunner(
         serverConfig,
         CPUTimeMetricQueryRunner.safeBuild(

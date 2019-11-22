@@ -121,6 +121,7 @@ public class QueryLifecycle
       @Nullable final String remoteAddress
   )
   {
+    log.info("----az runSimple: %s", query);
     initialize(query);
 
     final Sequence<T> results;
@@ -251,7 +252,9 @@ public class QueryLifecycle
 
     final Map<String, Object> responseContext = DirectDruidClient.makeResponseContextForQuery();
 
+    log.info("----az queryPlus.run before = %s", System.currentTimeMillis());
     final Sequence res = queryPlus.run(texasRanger, responseContext);
+    log.info("----az queryPlus.runf after");
 
     return new QueryResponse(res == null ? Sequences.empty() : res, responseContext);
   }

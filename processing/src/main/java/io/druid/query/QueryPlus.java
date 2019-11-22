@@ -22,6 +22,7 @@ package io.druid.query;
 import com.google.common.base.Preconditions;
 import io.druid.guice.annotations.PublicApi;
 import io.druid.java.util.common.guava.Sequence;
+import io.druid.java.util.common.logger.Logger;
 import io.druid.query.spec.QuerySegmentSpec;
 
 import javax.annotation.Nullable;
@@ -34,6 +35,8 @@ import java.util.Map;
 @PublicApi
 public final class QueryPlus<T>
 {
+  private static final Logger log = new Logger(QueryPlus.class);
+
   /**
    * Returns the minimum bare QueryPlus object with the given query. {@link #getQueryMetrics()} of the QueryPlus object,
    * returned from this factory method, returns {@code null}.
@@ -126,6 +129,10 @@ public final class QueryPlus<T>
 
   public Sequence<T> run(QuerySegmentWalker walker, Map<String, Object> context)
   {
+    log.info("----az walker = %s", walker.getClass().getSimpleName());
+    log.info("----az query context = %s", query.getContext());
+    log.info("----az run   context = %s", context);
+
     return query.getRunner(walker).run(this, context);
   }
 }

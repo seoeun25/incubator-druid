@@ -175,14 +175,18 @@ public class QueryResource implements QueryCountStatsProvider
       if (log.isDebugEnabled()) {
         log.debug("Got query [%s]", query);
       }
+      log.info("----az query = %s", query);
 
       final Access authResult = queryLifecycle.authorize(req);
       if (!authResult.isAllowed()) {
         throw new ForbiddenException(authResult.toString());
       }
 
+      log.info("----az queryLifecycle.execute before");
       final QueryLifecycle.QueryResponse queryResponse = queryLifecycle.execute();
+      log.info("----az queryLifecycle.execute after");
       final Sequence<?> results = queryResponse.getResults();
+      log.info("----az queryResponse.getResults");
       final Map<String, Object> responseContext = queryResponse.getResponseContext();
       final String prevEtag = getPreviousEtag(req);
 
@@ -205,6 +209,7 @@ public class QueryResource implements QueryCountStatsProvider
                   @Override
                   public void write(OutputStream outputStream) throws IOException, WebApplicationException
                   {
+                    log.info("----az response.write start");
                     Exception e = null;
 
                     CountingOutputStream os = new CountingOutputStream(outputStream);
@@ -214,6 +219,7 @@ public class QueryResource implements QueryCountStatsProvider
 
                       os.flush(); // Some types of OutputStream suppress flush errors in the .close() method.
                       os.close();
+                      log.info("----az os close.");
                     }
                     catch (Exception ex) {
                       e = ex;
@@ -223,6 +229,7 @@ public class QueryResource implements QueryCountStatsProvider
                     finally {
                       Thread.currentThread().setName(currThreadName);
 
+                      log.info("----az before queryLifecycle.emitLogsAndMetrics");
                       queryLifecycle.emitLogsAndMetrics(e, req.getRemoteAddr(), os.getCount());
 
                       if (e == null) {
@@ -231,6 +238,7 @@ public class QueryResource implements QueryCountStatsProvider
                         failedQueryCount.incrementAndGet();
                       }
                     }
+                    log.info("----az response.wrtie end");
                   }
                 },
                 context.getContentType()

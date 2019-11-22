@@ -370,6 +370,7 @@ public class ThreadPoolTaskRunner implements TaskRunner, QuerySegmentWalker
       }
     }
 
+    log.info("----az getQueryRunnerImpl. SetAndVerifyContextQueryRunner::%s", queryRunner);
     return new SetAndVerifyContextQueryRunner(
         serverConfig,
         queryRunner == null ? new NoopQueryRunner<T>() : queryRunner

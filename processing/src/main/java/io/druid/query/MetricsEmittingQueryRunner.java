@@ -19,6 +19,7 @@
 
 package io.druid.query;
 
+import io.druid.java.util.common.logger.Logger;
 import io.druid.java.util.emitter.service.ServiceEmitter;
 import io.druid.java.util.common.guava.LazySequence;
 import io.druid.java.util.common.guava.Sequence;
@@ -33,6 +34,7 @@ import java.util.function.ObjLongConsumer;
  */
 public class MetricsEmittingQueryRunner<T> implements QueryRunner<T>
 {
+  private static final Logger log = new Logger(DefaultQueryMetrics.class);
   private final ServiceEmitter emitter;
   private final QueryToolChest<T, ? extends Query<T>> queryToolChest;
   private final QueryRunner<T> queryRunner;
@@ -115,6 +117,7 @@ public class MetricsEmittingQueryRunner<T> implements QueryRunner<T>
             reportMetric.accept(queryMetrics, timeTakenNs);
 
             if (creationTimeNs > 0) {
+              log.info("----az reportWaitTime");
               queryMetrics.reportWaitTime(startTimeNs - creationTimeNs);
             }
             queryMetrics.emit(emitter);

@@ -29,6 +29,7 @@ import io.druid.guice.annotations.ExtensionPoint;
 import io.druid.java.util.common.granularity.Granularities;
 import io.druid.java.util.common.granularity.Granularity;
 import io.druid.java.util.common.granularity.PeriodGranularity;
+import io.druid.java.util.common.logger.Logger;
 import io.druid.query.spec.QuerySegmentSpec;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
@@ -43,6 +44,8 @@ import java.util.Objects;
 @ExtensionPoint
 public abstract class BaseQuery<T extends Comparable<T>> implements Query<T>
 {
+  private static final Logger log = new Logger(BaseQuery.class);
+
   public static void checkInterrupted()
   {
     if (Thread.interrupted()) {
@@ -110,7 +113,9 @@ public abstract class BaseQuery<T extends Comparable<T>> implements Query<T>
   @Override
   public QueryRunner<T> getRunner(QuerySegmentWalker walker)
   {
-    return getQuerySegmentSpecForLookUp(this).lookup(this, walker);
+    QueryRunner<T> queryRunner = getQuerySegmentSpecForLookUp(this).lookup(this, walker);
+    log.info("----az QueryRunner = %s, %s", queryRunner.getClass().getSimpleName(), queryRunner);
+    return queryRunner;
   }
 
   @VisibleForTesting
@@ -120,10 +125,12 @@ public abstract class BaseQuery<T extends Comparable<T>> implements Query<T>
       QueryDataSource ds = (QueryDataSource) query.getDataSource();
       Query subquery = ds.getQuery();
       if (subquery instanceof BaseQuery) {
+        log.info("----az subquery is BaseQuery");
         return getQuerySegmentSpecForLookUp((BaseQuery) subquery);
       }
       throw new IllegalStateException("Invalid subquery type " + subquery.getClass());
     }
+    log.info("----az getQuerySegmentSpecForLookUp = %s", query.getQuerySegmentSpec().getClass().getSimpleName());
     return query.getQuerySegmentSpec();
   }
 

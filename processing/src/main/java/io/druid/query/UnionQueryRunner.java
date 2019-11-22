@@ -24,11 +24,14 @@ import com.google.common.collect.Lists;
 import io.druid.java.util.common.guava.MergeSequence;
 import io.druid.java.util.common.guava.Sequence;
 import io.druid.java.util.common.guava.Sequences;
+import io.druid.java.util.common.logger.Logger;
 
 import java.util.Map;
 
 public class UnionQueryRunner<T> implements QueryRunner<T>
 {
+  private static final Logger log = new Logger(UnionQueryRunner.class);
+
   private final QueryRunner<T> baseRunner;
 
   public UnionQueryRunner(
@@ -41,6 +44,8 @@ public class UnionQueryRunner<T> implements QueryRunner<T>
   @Override
   public Sequence<T> run(final QueryPlus<T> queryPlus, final Map<String, Object> responseContext)
   {
+    log.info("----az UnionQueryRunner.run. baseRunner = %s", baseRunner);
+
     Query<T> query = queryPlus.getQuery();
     DataSource dataSource = query.getDataSource();
     if (dataSource instanceof UnionDataSource) {

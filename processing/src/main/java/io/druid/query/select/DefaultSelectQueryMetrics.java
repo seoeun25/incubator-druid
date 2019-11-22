@@ -19,6 +19,7 @@
 
 package io.druid.query.select;
 
+import io.druid.java.util.common.logger.Logger;
 import io.druid.java.util.emitter.service.ServiceEmitter;
 import io.druid.collections.bitmap.BitmapFactory;
 import io.druid.java.util.common.ISE;
@@ -37,6 +38,7 @@ import java.util.List;
  */
 public class DefaultSelectQueryMetrics implements SelectQueryMetrics
 {
+  private static final Logger log = new Logger(SelectQueryMetrics.class);
   private QueryMetrics<Query<?>> delegateQueryMetrics;
 
   // queryMetrics.query(query) must already be called on the provided queryMetrics.
@@ -180,6 +182,7 @@ public class DefaultSelectQueryMetrics implements SelectQueryMetrics
   @Override
   public QueryMetrics reportSegmentTime(long timeNs)
   {
+    log.info("----az reportSegmentTime. Select Query");
     return delegateQueryMetrics.reportSegmentTime(timeNs);
   }
 

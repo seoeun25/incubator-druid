@@ -84,8 +84,12 @@ public class SqlResource
     final PlannerResult plannerResult;
     final DateTimeZone timeZone;
 
+    log.info("----az sqlQuery = %s", sqlQuery);
+
     try (final DruidPlanner planner = plannerFactory.createPlanner(sqlQuery.getContext())) {
+      log.info("----az planner.plan before");
       plannerResult = planner.plan(sqlQuery.getQuery(), req, null);
+      log.info("----az planner.plan after");
       timeZone = planner.getPlannerContext().getTimeZone();
 
       // Remember which columns are time-typed, so we can emit ISO8601 instead of millis values.
@@ -98,7 +102,9 @@ public class SqlResource
         dateColumns[i] = sqlTypeName == SqlTypeName.DATE;
       }
 
+      log.info("----az plannerResult.run before");
       final Yielder<Object[]> yielder0 = Yielders.each(plannerResult.run());
+      log.info("----az plannerResult.run after");
 
       try {
         return Response.ok(
@@ -107,6 +113,7 @@ public class SqlResource
               @Override
               public void write(final OutputStream outputStream) throws IOException, WebApplicationException
               {
+                log.info("----az write response start");
                 Yielder<Object[]> yielder = yielder0;
 
                 try (final JsonGenerator jsonGenerator = jsonMapper.getFactory().createGenerator(outputStream)) {
@@ -146,6 +153,7 @@ public class SqlResource
                 finally {
                   yielder.close();
                 }
+                log.info("----az write response end");
               }
             }
         ).build();

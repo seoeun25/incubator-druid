@@ -19,6 +19,7 @@
 
 package io.druid.query;
 
+import io.druid.java.util.common.logger.Logger;
 import io.druid.java.util.emitter.service.ServiceEmitter;
 import io.druid.java.util.common.guava.Sequence;
 
@@ -27,10 +28,13 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class FluentQueryRunnerBuilder<T>
 {
+  private static final Logger log = new Logger(FluentQueryRunnerBuilder.class);
+
   final QueryToolChest<T, Query<T>> toolChest;
 
   public FluentQueryRunner create(QueryRunner<T> baseRunner)
   {
+    log.info("----az create");
     return new FluentQueryRunner(baseRunner);
   }
 
@@ -46,6 +50,7 @@ public class FluentQueryRunnerBuilder<T>
     public FluentQueryRunner(QueryRunner<T> runner)
     {
       this.baseRunner = runner;
+      log.info("----az new FluentQueryRunner. baseRunner = %s", baseRunner.getClass().getSimpleName());
     }
 
     @Override
@@ -53,6 +58,7 @@ public class FluentQueryRunnerBuilder<T>
         QueryPlus<T> queryPlus, Map<String, Object> responseContext
     )
     {
+      log.info("----az QueryRunner.run. baseRunner = %s", baseRunner.getClass().getSimpleName());
       return baseRunner.run(queryPlus, responseContext);
     }
 
@@ -99,6 +105,7 @@ public class FluentQueryRunnerBuilder<T>
 
     public FluentQueryRunner postProcess(PostProcessingOperator<T> postProcessing)
     {
+      log.info("----az postProcessing = %s, baseRunner = %s", postProcessing, baseRunner);
       return from(
           postProcessing != null ?
              postProcessing.postProcess(baseRunner) : baseRunner
@@ -107,6 +114,7 @@ public class FluentQueryRunnerBuilder<T>
 
     public FluentQueryRunner mergeResults()
     {
+      log.info("---- az mergeResult");
       return from(
           toolChest.mergeResults(baseRunner)
       );

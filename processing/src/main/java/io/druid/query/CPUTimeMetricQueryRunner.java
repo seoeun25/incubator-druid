@@ -20,6 +20,7 @@
 package io.druid.query;
 
 import com.google.common.base.Supplier;
+import io.druid.java.util.common.logger.Logger;
 import io.druid.java.util.emitter.service.ServiceEmitter;
 import io.druid.common.utils.VMUtils;
 import io.druid.java.util.common.ISE;
@@ -32,6 +33,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class CPUTimeMetricQueryRunner<T> implements QueryRunner<T>
 {
+  private static final Logger log = new Logger(CPUTimeMetricQueryRunner.class);
+
   private final QueryRunner<T> delegate;
   private final QueryToolChest<T, ? extends Query<T>> queryToolChest;
   private final ServiceEmitter emitter;
@@ -60,8 +63,11 @@ public class CPUTimeMetricQueryRunner<T> implements QueryRunner<T>
   @Override
   public Sequence<T> run(final QueryPlus<T> queryPlus, final Map<String, Object> responseContext)
   {
+    log.info("----az CPUTimeMetricQueryRunner = %s.run. deletegate = %s, context = %s",
+             this, delegate, responseContext);
     final QueryPlus<T> queryWithMetrics = queryPlus.withQueryMetrics(queryToolChest);
     final Sequence<T> baseSequence = delegate.run(queryWithMetrics, responseContext);
+    log.info("----az delegate.run after");
     return Sequences.wrap(
         baseSequence,
         new SequenceWrapper()
@@ -70,11 +76,13 @@ public class CPUTimeMetricQueryRunner<T> implements QueryRunner<T>
           public <RetType> RetType wrap(Supplier<RetType> sequenceProcessing)
           {
             final long start = VMUtils.getCurrentThreadCpuTime();
+            log.info("----az cpuTimeAccmulator.start = %s", start);
             try {
               return sequenceProcessing.get();
             }
             finally {
               cpuTimeAccumulator.addAndGet(VMUtils.getCurrentThreadCpuTime() - start);
+              log.info("----az cpuTimeAccumulator.addAndGet = %s", cpuTimeAccumulator.get());
             }
           }
 
@@ -85,6 +93,7 @@ public class CPUTimeMetricQueryRunner<T> implements QueryRunner<T>
               final long cpuTimeNs = cpuTimeAccumulator.get();
               if (cpuTimeNs > 0) {
                 queryWithMetrics.getQueryMetrics().reportCpuTime(cpuTimeNs).emit(emitter);
+                log.info("----az sequences.wrap after. queryMetrics.reportCputTime = %s", cpuTimeNs);
               }
             }
           }
