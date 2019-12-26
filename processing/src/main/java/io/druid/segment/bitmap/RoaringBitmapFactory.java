@@ -172,7 +172,7 @@ public final class RoaringBitmapFactory extends com.metamx.collections.bitmap.Ro
   }
 
   // should return -1 instead of NoSuchElementException
-  private ImmutableBitmap copyToBitmap(final IntIterator iterator)
+  public static ImmutableBitmap copyToBitmap(final IntIterator iterator)
   {
     final MutableRoaringBitmap mutable = new MutableRoaringBitmap();
     final MutableRoaringArray roaringArray = mutable.getMappeableRoaringArray();

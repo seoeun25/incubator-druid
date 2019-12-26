@@ -33,6 +33,8 @@ import io.druid.data.Pair;
 import io.druid.data.ValueDesc;
 import io.druid.java.util.common.logger.Logger;
 import io.druid.query.filter.BitmapIndexSelector;
+import io.druid.segment.bitmap.IntIterators;
+import io.druid.segment.bitmap.RoaringBitmapFactory;
 import io.druid.segment.column.Column;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.ar.ArabicAnalyzer;
@@ -385,7 +387,26 @@ public class Lucenes
     if (searched.totalHits == 0) {
       return factory.makeEmptyImmutableBitmap();
     }
-    MutableBitmap bitmap = factory.makeEmptyMutableBitmap();
+    if (factory instanceof RoaringBitmapFactory) {
+      return RoaringBitmapFactory.copyToBitmap(new IntIterators.Abstract()
+      {
+        private final ScoreDoc[] docs = searched.scoreDocs;
+        private int index;
+
+        @Override
+        public boolean hasNext()
+        {
+          return index < docs.length;
+        }
+
+        @Override
+        public int next()
+        {
+          return index < docs.length ? docs[index++].doc : -1;
+        }
+      });
+    }
+    final MutableBitmap bitmap = factory.makeEmptyMutableBitmap();
     for (ScoreDoc scoreDoc : searched.scoreDocs) {
       bitmap.add(scoreDoc.doc);   // can be slow
     }
