@@ -39,7 +39,7 @@ import java.util.Objects;
  *
  * @author Alexander Saydakov
  */
-abstract class HllSketchAggregatorFactory extends AggregatorFactory
+abstract class HllSketchAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
 {
 
   static final int DEFAULT_LG_K = 12;
@@ -80,6 +80,7 @@ abstract class HllSketchAggregatorFactory extends AggregatorFactory
     return name;
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {

@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Ints;
-import io.druid.java.util.common.IAE;
 import com.yahoo.memory.Memory;
 import com.yahoo.sketches.Family;
 import com.yahoo.sketches.Util;
@@ -31,6 +30,7 @@ import com.yahoo.sketches.theta.SetOperation;
 import com.yahoo.sketches.theta.Sketch;
 import com.yahoo.sketches.theta.Union;
 import io.druid.data.ValueDesc;
+import io.druid.java.util.common.IAE;
 import io.druid.query.aggregation.Aggregator;
 import io.druid.query.aggregation.AggregatorFactory;
 import io.druid.query.aggregation.BufferAggregator;
@@ -44,7 +44,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public abstract class SketchAggregatorFactory extends AggregatorFactory
+public abstract class SketchAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
 {
   public static final int DEFAULT_MAX_SKETCH_SIZE = 16384;
 
@@ -163,6 +163,7 @@ public abstract class SketchAggregatorFactory extends AggregatorFactory
     return name;
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {

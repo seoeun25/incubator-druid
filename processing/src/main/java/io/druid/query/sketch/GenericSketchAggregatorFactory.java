@@ -52,6 +52,7 @@ import java.util.Objects;
 
 @JsonTypeName("sketch")
 public class GenericSketchAggregatorFactory extends AggregatorFactory.TypeResolving
+  implements AggregatorFactory.SingleFielded
 {
   private static final byte CACHE_TYPE_ID = 24;
 
@@ -449,6 +450,7 @@ public class GenericSketchAggregatorFactory extends AggregatorFactory.TypeResolv
     return name;
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {

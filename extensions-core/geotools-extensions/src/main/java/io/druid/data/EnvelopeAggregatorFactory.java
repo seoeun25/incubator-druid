@@ -40,7 +40,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @JsonTypeName("envelope")
-public class EnvelopeAggregatorFactory extends AggregatorFactory
+public class EnvelopeAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
 {
   private static final byte[] CACHE_KEY = new byte[]{0x10};
 
@@ -59,6 +59,7 @@ public class EnvelopeAggregatorFactory extends AggregatorFactory
     this.fieldName = fieldName == null ? name : fieldName;
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {

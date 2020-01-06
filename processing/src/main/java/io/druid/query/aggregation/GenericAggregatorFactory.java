@@ -48,6 +48,7 @@ import java.util.Set;
 /**
  */
 public abstract class GenericAggregatorFactory extends AggregatorFactory.TypeResolving
+    implements AggregatorFactory.SingleFielded
 {
   protected final String fieldName;
   protected final String name;
@@ -213,6 +214,7 @@ public abstract class GenericAggregatorFactory extends AggregatorFactory.TypeRes
     return object;
   }
 
+  @Override
   @JsonProperty
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public String getFieldName()

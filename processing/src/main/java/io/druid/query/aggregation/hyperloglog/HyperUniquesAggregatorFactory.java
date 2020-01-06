@@ -43,7 +43,7 @@ import java.util.Objects;
 
 /**
  */
-public class HyperUniquesAggregatorFactory extends AggregatorFactory
+public class HyperUniquesAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
 {
   public static Object estimateCardinality(Object object, boolean round)
   {
@@ -216,6 +216,7 @@ public class HyperUniquesAggregatorFactory extends AggregatorFactory
     return Arrays.asList(fieldName);
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {

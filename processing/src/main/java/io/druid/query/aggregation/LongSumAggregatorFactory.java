@@ -40,7 +40,7 @@ import java.util.Set;
 
 /**
  */
-public class LongSumAggregatorFactory extends AggregatorFactory
+public class LongSumAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
 {
   private static final byte CACHE_TYPE_ID = 0x1;
 
@@ -143,6 +143,7 @@ public class LongSumAggregatorFactory extends AggregatorFactory
     return object;
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {

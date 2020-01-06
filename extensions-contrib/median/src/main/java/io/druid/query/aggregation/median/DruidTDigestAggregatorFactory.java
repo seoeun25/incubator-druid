@@ -38,7 +38,8 @@ import java.util.Comparator;
 import java.util.List;
 
 @JsonTypeName("digestQuantileAgg")
-public class DruidTDigestAggregatorFactory extends AggregatorFactory{
+public class DruidTDigestAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
+{
   private static final byte CACHE_TYPE_ID = 0xA;
 
   protected final String name;
@@ -126,12 +127,13 @@ public class DruidTDigestAggregatorFactory extends AggregatorFactory{
     }
   }
 
-  @JsonProperty
   @Override
+  @JsonProperty
   public String getName() {
     return name;
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {

@@ -36,7 +36,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class MetricRangeAggregatorFactory extends AggregatorFactory
+public class MetricRangeAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
 {
   private static final byte CACHE_TYPE_ID = 0x32;
   protected final String name;
@@ -140,6 +140,7 @@ public class MetricRangeAggregatorFactory extends AggregatorFactory
     return name;
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {

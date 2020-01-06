@@ -38,7 +38,7 @@ import java.util.Objects;
 
 /**
  */
-public class LongMaxAggregatorFactory extends AggregatorFactory
+public class LongMaxAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
 {
   private static final byte CACHE_TYPE_ID = 0xA;
 
@@ -127,6 +127,7 @@ public class LongMaxAggregatorFactory extends AggregatorFactory
     return object;
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {

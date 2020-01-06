@@ -35,7 +35,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class TimestampMaxAggregatorFactory extends AggregatorFactory
+public class TimestampMaxAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
 {
   private static final byte CACHE_TYPE_ID = 31;
 
@@ -134,6 +134,7 @@ public class TimestampMaxAggregatorFactory extends AggregatorFactory
     return name;
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {

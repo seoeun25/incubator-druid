@@ -35,7 +35,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-public class HistogramAggregatorFactory extends AggregatorFactory
+public class HistogramAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
 {
   private static final byte CACHE_TYPE_ID = 0x7;
 
@@ -141,6 +141,7 @@ public class HistogramAggregatorFactory extends AggregatorFactory
     return name;
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {

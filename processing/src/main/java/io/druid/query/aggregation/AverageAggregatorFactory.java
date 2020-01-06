@@ -41,7 +41,7 @@ import java.util.Objects;
 /**
  */
 @JsonTypeName("avg")
-public class AverageAggregatorFactory extends AggregatorFactory
+public class AverageAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
 {
   private static final byte[] CACHE_KEY = new byte[]{0x0F};
   private final String name;
@@ -170,6 +170,7 @@ public class AverageAggregatorFactory extends AggregatorFactory
     return name;
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {

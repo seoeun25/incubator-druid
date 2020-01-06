@@ -42,7 +42,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @JsonTypeName("approxHistogram")
-public class ApproximateHistogramAggregatorFactory extends AggregatorFactory
+public class ApproximateHistogramAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
 {
   private static final byte CACHE_TYPE_ID = 12;
 
@@ -228,6 +228,7 @@ public class ApproximateHistogramAggregatorFactory extends AggregatorFactory
   }
 
   @JsonProperty
+  @Override
   public String getFieldName()
   {
     return fieldName;

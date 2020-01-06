@@ -40,7 +40,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-public class DistinctCountAggregatorFactory extends AggregatorFactory
+public class DistinctCountAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
 {
   private static final byte CACHE_TYPE_ID = 20;
   private static final BitMapFactory DEFAULT_BITMAP_FACTORY = new RoaringBitMapFactory();
@@ -155,6 +155,7 @@ public class DistinctCountAggregatorFactory extends AggregatorFactory
     return ValueDesc.LONG;
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {

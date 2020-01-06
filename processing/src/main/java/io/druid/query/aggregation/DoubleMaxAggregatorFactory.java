@@ -38,7 +38,7 @@ import java.util.Objects;
 
 /**
  */
-public class DoubleMaxAggregatorFactory extends AggregatorFactory
+public class DoubleMaxAggregatorFactory extends AggregatorFactory implements AggregatorFactory.SingleFielded
 {
   private static final byte CACHE_TYPE_ID = 0x3;
 
@@ -132,6 +132,7 @@ public class DoubleMaxAggregatorFactory extends AggregatorFactory
     return object;
   }
 
+  @Override
   @JsonProperty
   public String getFieldName()
   {
