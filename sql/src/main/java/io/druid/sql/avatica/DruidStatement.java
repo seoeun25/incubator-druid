@@ -29,6 +29,7 @@ import io.druid.java.util.common.guava.Sequence;
 import io.druid.java.util.common.guava.Sequences;
 import io.druid.java.util.common.guava.Yielder;
 import io.druid.concurrent.Execs;
+import io.druid.sql.SqlLifecycle;
 import io.druid.sql.calcite.planner.DruidPlanner;
 import io.druid.sql.calcite.planner.PlannerFactory;
 import io.druid.sql.calcite.planner.PlannerResult;
@@ -64,6 +65,7 @@ public class DruidStatement implements Closeable
   private final String connectionId;
   private final int statementId;
   private final Map<String, Object> queryContext;
+  private final SqlLifecycle sqlLifecycle;
   private final Runnable onClose;
   private final Object lock = new Object();
 
@@ -87,21 +89,23 @@ public class DruidStatement implements Closeable
   private State state = State.NEW;
   private String query;
   private long maxRowCount;
-  private PlannerResult plannerResult;
   private Meta.Signature signature;
   private Yielder<Object[]> yielder;
   private int offset = 0;
+  private Throwable throwable;
 
   public DruidStatement(
       final String connectionId,
       final int statementId,
       final Map<String, Object> queryContext,
+      final SqlLifecycle sqlLifecycle,
       final Runnable onClose
   )
   {
     this.connectionId = Preconditions.checkNotNull(connectionId, "connectionId");
     this.statementId = statementId;
     this.queryContext = queryContext == null ? ImmutableMap.of() : queryContext;
+    this.sqlLifecycle = Preconditions.checkNotNull(sqlLifecycle, "sqlLifecycle");
     this.onClose = Preconditions.checkNotNull(onClose, "onClose");
     this.yielderOpenCloseExecutor = Execs.singleThreaded(
         StringUtils.format("JDBCYielderOpenCloseExecutor-connection-%s-statement-%d", connectionId, statementId)
@@ -158,14 +162,15 @@ public class DruidStatement implements Closeable
       final long maxRowCount
   )
   {
-    try (final DruidPlanner planner = plannerFactory.createPlanner(queryContext)) {
-      synchronized (lock) {
+    synchronized (lock) {
+      try {
         ensure(State.NEW);
-        this.plannerResult = planner.plan(query, null);
+        sqlLifecycle.initialize(query, queryContext);
+        sqlLifecycle.planAndAuthorize(null);
         this.maxRowCount = maxRowCount;
         this.query = query;
         this.signature = Meta.Signature.create(
-            createColumnMetaData(plannerResult.rowType()),
+            createColumnMetaData(sqlLifecycle.rowType()),
             query,
             new ArrayList<>(),
             Meta.CursorFactory.ARRAY,
@@ -173,18 +178,19 @@ public class DruidStatement implements Closeable
         );
         this.state = State.PREPARED;
       }
-    }
-    catch (Throwable t) {
-      try {
-        close();
+      catch (Throwable t) {
+        this.throwable = t;
+        try {
+          close();
+        }
+        catch (Throwable t1) {
+          t.addSuppressed(t1);
+        }
+        throw Throwables.propagate(t);
       }
-      catch (Throwable t1) {
-        t.addSuppressed(t1);
-      }
-      throw Throwables.propagate(t);
-    }
 
-    return this;
+      return this;
+    }
   }
 
   public DruidStatement execute()
@@ -194,7 +200,7 @@ public class DruidStatement implements Closeable
 
       try {
         final Sequence<Object[]> baseSequence = yielderOpenCloseExecutor.submit(
-            () -> plannerResult.run()
+            () -> sqlLifecycle.execute()
         ).get();
 
         // We can't apply limits greater than Integer.MAX_VALUE, ignore them.
@@ -207,6 +213,7 @@ public class DruidStatement implements Closeable
         state = State.RUNNING;
       }
       catch (Throwable t) {
+        this.throwable = t;
         try {
           close();
         }
@@ -250,7 +257,7 @@ public class DruidStatement implements Closeable
   {
     synchronized (lock) {
       ensure(State.PREPARED, State.RUNNING, State.DONE);
-      return plannerResult.rowType();
+      return sqlLifecycle.rowType();
     }
   }
 
@@ -291,6 +298,7 @@ public class DruidStatement implements Closeable
         return new Meta.Frame(fetchOffset, done, rows);
       }
       catch (Throwable t) {
+        this.throwable = t;
         try {
           close();
         }
@@ -331,6 +339,7 @@ public class DruidStatement implements Closeable
           // First close. Run the onClose function.
           try {
             onClose.run();
+            sqlLifecycle.emitLogsAndMetrics(t, null, -1);
           }
           catch (Throwable t1) {
             t.addSuppressed(t1);
@@ -343,6 +352,9 @@ public class DruidStatement implements Closeable
       if (oldState != State.DONE) {
         // First close. Run the onClose function.
         try {
+          if (!(this.throwable instanceof ForbiddenException)) {
+            sqlLifecycle.emitLogsAndMetrics(this.throwable, null, -1);
+          }
           onClose.run();
         }
         catch (Throwable t) {

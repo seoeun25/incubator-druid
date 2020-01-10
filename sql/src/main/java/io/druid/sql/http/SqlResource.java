@@ -43,6 +43,7 @@ import org.apache.calcite.plan.RelOptPlanner;
 import org.apache.calcite.rel.type.RelDataTypeField;
 import org.apache.calcite.sql.type.SqlTypeName;
 import org.apache.commons.lang.mutable.MutableInt;
+import io.druid.sql.SqlLifecycleFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
@@ -71,6 +72,7 @@ public class SqlResource
 
   private final ObjectMapper jsonMapper;
   private final PlannerFactory plannerFactory;
+  private final SqlLifecycleFactory sqlLifecycleFactory;
   private final BrokerServerView brokerServerView;
   private final RequestLogger requestLogger;
 
@@ -78,12 +80,14 @@ public class SqlResource
   public SqlResource(
       @Json ObjectMapper jsonMapper,
       PlannerFactory plannerFactory,
+      SqlLifecycleFactory sqlLifecycleFactory,
       BrokerServerView brokerServerView,
       RequestLogger requestLogger
   )
   {
     this.jsonMapper = Preconditions.checkNotNull(jsonMapper, "jsonMapper");
     this.plannerFactory = Preconditions.checkNotNull(plannerFactory, "connection");
+    this.sqlLifecycleFactory = Preconditions.checkNotNull(sqlLifecycleFactory, "sqlLifecycleFactory");
     this.brokerServerView = brokerServerView;
     this.requestLogger = requestLogger;
   }
@@ -203,7 +207,8 @@ public class SqlResource
                                 "query/rows", counter.intValue(),
                                 "success", true
                             )
-                        )
+                        ),
+                        planner.getPlannerContext().getQueryContext()
                     )
                 );
               }
@@ -240,7 +245,8 @@ public class SqlResource
                       "interrupted", true,
                       "reason", e.toString()
                   )
-              )
+              ),
+              null
           )
       );
       return Response.serverError()

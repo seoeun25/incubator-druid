@@ -128,4 +128,15 @@ public class FileRequestLogger implements RequestLogger
       fileWriter.flush();
     }
   }
+
+  @Override
+  public void logSqlQuery(RequestLogLine requestLogLine) throws IOException
+  {
+    synchronized (lock) {
+      fileWriter.write(
+          String.format("%s%n", requestLogLine.getLine(objectMapper))
+      );
+      fileWriter.flush();
+    }
+  }
 }

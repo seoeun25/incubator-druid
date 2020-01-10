@@ -171,6 +171,11 @@ public class QueryMaker
   @SuppressWarnings("unchecked")
   private <T> Sequence<T> runQuery(final Query query)
   {
+//    final String queryId = UUID.randomUUID().toString();
+//    plannerContext.addNativeQueryId(queryId);
+//    query = query.withId(queryId)
+//                 .withSqlQueryId(plannerContext.getSqlQueryId());
+
     return queryLifecycleFactory.factorize().runSimple(query, null, null);
   }
 

@@ -233,6 +233,12 @@ public class AsyncQueryForwardingServletTest extends BaseJettyTest
                 {
                   // noop
                 }
+
+                @Override
+                public void logSqlQuery(RequestLogLine requestLogLine) throws IOException
+                {
+                  // noop
+                }
               },
               new DefaultGenericQueryMetricsFactory(jsonMapper)
           )

@@ -38,6 +38,7 @@ import io.druid.server.security.Access;
 import io.druid.server.security.Action;
 import io.druid.server.security.AuthConfig;
 import io.druid.server.security.AuthorizationInfo;
+import io.druid.server.security.AuthorizationUtils;
 import io.druid.server.security.Resource;
 import io.druid.server.security.ResourceType;
 import org.eclipse.jetty.io.EofException;
@@ -55,8 +56,8 @@ import java.util.concurrent.TimeUnit;
  * <ol>
  * <li>Initialization ({@link #initialize(Query)})</li>
  * <li>Authorization ({@link #authorize(AuthorizationInfo)}</li>
- * <li>Execution ({@link #execute()}</li>
- * <li>Logging ({@link #emitLogsAndMetrics(Throwable, String, long, int)}</li>
+ * <li>Execution ({@link #execute(Map)}</li>
+ * <li>Logging ({@link #emitLogsAndMetrics(Query, Throwable, String, long, int)}</li>
  * </ol>
  *
  * This object is not thread-safe.
@@ -149,7 +150,7 @@ public class QueryLifecycle
   /**
    * Initializes this object to execute a specific query. Does not actually execute the query.
    *
-   * @param baseQuery the query
+   * @param query the query
    */
   @SuppressWarnings("unchecked")
   public Query initialize(final Query query)
@@ -175,25 +176,13 @@ public class QueryLifecycle
     transition(State.INITIALIZED, State.AUTHORIZING);
 
     if (authConfig.isEnabled()) {
-      // This is an experimental feature, see - https://github.com/druid-io/druid/pull/2424
-      if (authorizationInfo != null) {
-        for (String dataSource : query.getDataSource().getNames()) {
-          Access authResult = authorizationInfo.isAuthorized(
-              new Resource(dataSource, ResourceType.DATASOURCE),
-              Action.READ
-          );
-          if (!authResult.isAllowed()) {
-            // Not authorized; go straight to Jail, do not pass Go.
-            transition(State.AUTHORIZING, State.DONE);
-            return authResult;
-          }
-        }
-
-        transition(State.AUTHORIZING, State.AUTHORIZED);
-        return new Access(true);
+      Access accessAuth = AuthorizationUtils.authorize(authorizationInfo, query.getDataSource().getNames());
+      if (!accessAuth.isAllowed()) {
+        transition(State.AUTHORIZING, State.DONE);
       } else {
-        throw new ISE("Security is enabled but no authorization info found in the request");
+        transition(State.AUTHORIZING, State.AUTHORIZED);
       }
+      return accessAuth;
     } else {
       transition(State.AUTHORIZING, State.AUTHORIZED);
       return new Access(true);
@@ -203,7 +192,7 @@ public class QueryLifecycle
   /**
    * Execute the query. Can only be called if the query has been authorized. Note that query logs and metrics will
    * not be emitted automatically when the Sequence is fully iterated. It is the caller's responsibility to call
-   * {@link #emitLogsAndMetrics(Throwable, String, long, int)} to emit logs and metrics.
+   * {@link #emitLogsAndMetrics(Query, Throwable, String, long, int)} to emit logs and metrics.
    *
    * @return result sequence and response context
    */
@@ -293,7 +282,8 @@ public class QueryLifecycle
               new DateTime(startMs),
               Strings.nullToEmpty(remoteAddress),
               forLog,
-              new QueryStats(statsMap)
+              new QueryStats(statsMap),
+              null
           )
       );
     }

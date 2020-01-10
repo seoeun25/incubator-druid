@@ -49,6 +49,12 @@ public class EmittingRequestLogger implements RequestLogger
     emitter.emit(new RequestLogEventBuilder(feed, requestLogLine));
   }
 
+  @Override
+  public void logSqlQuery(RequestLogLine requestLogLine) throws IOException
+  {
+    emitter.emit(new RequestLogEventBuilder(feed, requestLogLine));
+  }
+
   public static class RequestLogEvent implements Event
   {
     final ImmutableMap<String, String> serviceDimensions;

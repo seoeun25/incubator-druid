@@ -59,6 +59,12 @@ public interface RequestLoggerProvider extends Provider<RequestLogger>
         {
           log.info(requestLogLine.getLine(mapper));
         }
+
+        @Override
+        public void logSqlQuery(RequestLogLine requestLogLine) throws IOException
+        {
+          log.info(requestLogLine.getLine(mapper));
+        }
       };
     }
   }

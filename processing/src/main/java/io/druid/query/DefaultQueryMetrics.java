@@ -52,6 +52,7 @@ public class DefaultQueryMetrics<QueryType extends Query<?>> implements QueryMet
     hasFilters(query);
     duration(query);
     queryId(query);
+    sqlQueryId(query);
   }
 
   @Override
@@ -91,6 +92,12 @@ public class DefaultQueryMetrics<QueryType extends Query<?>> implements QueryMet
   public void queryId(QueryType query)
   {
     builder.setDimension(DruidMetrics.ID, Strings.nullToEmpty(query.getId()));
+  }
+
+  @Override
+  public void sqlQueryId(QueryType query)
+  {
+    // Emit nothing by default.
   }
 
   @Override

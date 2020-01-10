@@ -23,9 +23,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import org.joda.time.DateTime;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 
 public class RequestLogLine
 {
@@ -35,13 +39,16 @@ public class RequestLogLine
   private final String remoteAddr;
   private final Object query;
   private final QueryStats queryStats;
+  private final Map<String, Object> sqlQueryContext;
 
-  public RequestLogLine(DateTime timestamp, String remoteAddr, Object query, QueryStats queryStats)
+  public RequestLogLine(DateTime timestamp, String remoteAddr, Object query, QueryStats queryStats,
+                        Map<String, Object> sqlQueryContext)
   {
     this.timestamp = timestamp;
     this.remoteAddr = remoteAddr;
     this.query = query;
     this.queryStats = queryStats;
+    this.sqlQueryContext = sqlQueryContext;
   }
 
   public String getLine(ObjectMapper objectMapper) throws JsonProcessingException
@@ -51,7 +58,8 @@ public class RequestLogLine
             timestamp,
             remoteAddr,
             objectMapper.writeValueAsString(query),
-            objectMapper.writeValueAsString(queryStats)
+            objectMapper.writeValueAsString(queryStats),
+            objectMapper.writeValueAsString(Optional.ofNullable(sqlQueryContext).orElse(ImmutableMap.of()))
         )
     );
   }
@@ -78,5 +86,24 @@ public class RequestLogLine
   public QueryStats getQueryStats()
   {
     return queryStats;
+  }
+
+  @Nullable
+  @JsonProperty
+  public Map<String, Object> getSqlQueryContext()
+  {
+    return sqlQueryContext;
+  }
+
+  @Override
+  public String toString()
+  {
+    return "RequestLogLine{" +
+           "query=" + query +
+           ", sqlQueryContext=" + sqlQueryContext +
+           ", timestamp=" + timestamp +
+           ", remoteAddr='" + remoteAddr + '\'' +
+           ", queryStats=" + queryStats +
+           '}';
   }
 }

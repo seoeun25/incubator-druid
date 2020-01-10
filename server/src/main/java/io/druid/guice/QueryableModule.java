@@ -29,6 +29,7 @@ import io.druid.server.log.EmittingRequestLoggerProvider;
 import io.druid.server.log.FileRequestLoggerProvider;
 import io.druid.server.log.RequestLogger;
 import io.druid.server.log.RequestLoggerProvider;
+import io.druid.server.log.SwitchingRequestLoggerProvider;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,7 +54,8 @@ public class QueryableModule implements DruidModule
             .registerSubtypes(
                 EmittingRequestLoggerProvider.class,
                 FileRequestLoggerProvider.class,
-                RequestLoggerProvider.Logging.class
+                RequestLoggerProvider.Logging.class,
+                SwitchingRequestLoggerProvider.class
             )
     );
   }

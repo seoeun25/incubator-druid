@@ -224,7 +224,8 @@ public class AsyncQueryForwardingServlet extends AsyncProxyServlet
                 new DateTime(),
                 request.getRemoteAddr(),
                 null,
-                new QueryStats(ImmutableMap.<String, Object>of("success", false, "exception", errorMessage))
+                new QueryStats(ImmutableMap.<String, Object>of("success", false, "exception", errorMessage)),
+                null
             )
         );
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -388,7 +389,8 @@ public class AsyncQueryForwardingServlet extends AsyncProxyServlet
                         result.isSucceeded()
                         && result.getResponse().getStatus() == javax.ws.rs.core.Response.Status.OK.getStatusCode()
                     )
-                )
+                ),
+                null
             )
         );
       }
@@ -416,7 +418,8 @@ public class AsyncQueryForwardingServlet extends AsyncProxyServlet
                         "exception",
                         errorMessage == null ? "no message" : errorMessage
                     )
-                )
+                ),
+                null
             )
         );
       }

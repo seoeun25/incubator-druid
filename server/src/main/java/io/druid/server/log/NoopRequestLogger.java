@@ -32,4 +32,10 @@ public class NoopRequestLogger implements RequestLogger
   {
     // This is a no op!
   }
+
+  @Override
+  public void logSqlQuery(RequestLogLine requestLogLine) throws IOException
+  {
+
+  }
 }

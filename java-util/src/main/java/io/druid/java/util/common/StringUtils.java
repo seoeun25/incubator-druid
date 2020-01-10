@@ -360,4 +360,18 @@ public class StringUtils
       return bob.toString();
     }
   }
+
+  /**
+   * Returns the given string if it is non-null; the empty string otherwise.
+   * This method should only be used at places where null to empty conversion is
+   * irrelevant to null handling of the data.
+   *
+   * @param string the string to test and possibly return
+   *
+   * @return {@code string} itself if it is non-null; {@code ""} if it is null
+   */
+  public static String nullToEmptyNonDruidDataString(@Nullable String string)
+  {
+    return Strings.nullToEmpty(string);
+  }
 }
